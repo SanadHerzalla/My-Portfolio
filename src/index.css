@@ -1,31 +1,62 @@
 @import "tailwindcss";
 
+/* ✅ Smooth page scrolling */
 html {
   scroll-behavior: smooth;
 }
 
+/* ✅ Better default rendering */
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-canvas);
+  color: rgb(var(--fg));
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Canvas helper */
 .bg-canvas {
   position: fixed;
   inset: 0;
   z-index: -1;
 }
 
+/* =========================
+   THEME TOKENS (2026-ready)
+   ========================= */
 :root {
+  /* Background */
   --bg-canvas: #f8fafc;
 
+  /* Text */
   --fg: 17 24 39;
   --muted: 100 116 139;
 
+  /* Glass surfaces */
   --card-bg: 255 255 255 / 0.75;
   --card-border: 17 24 39 / 0.08;
 
+  /* ✅ Single source of truth accent (fix duplicate) */
   --accent: 59 130 246;
 
+  /* Dots */
   --dot-a: #1e293b;
   --dot-b: #94a3b8;
-  --accent: 0 0 0;
   --dot-link: rgba(156, 163, 175, 0.18);
-  /* black in light mode */
+
+  /* ✅ Radar tokens (used by SkillRadar) */
+  --radar-bg-a: rgba(255, 255, 255, 0.92);
+  --radar-bg-b: rgba(248, 250, 252, 0.65);
+  --radar-ring: rgba(15, 23, 42, 0.12);
+
+  /* ✅ Shadows (optional, consistent) */
+  --shadow-soft: 0 18px 60px rgba(0, 0, 0, 0.22);
+  --shadow-strong: 0 30px 90px rgba(0, 0, 0, 0.35);
 }
 
 html.dark {
@@ -41,21 +72,36 @@ html.dark {
 
   --dot-a: #22d3ee;
   --dot-b: #334155;
-  --accent: 34 211 238;
   --dot-link: rgba(99, 102, 241, 0.14);
-  /* cyan in dark mode */
+
+  --radar-bg-a: rgba(15, 23, 42, 0.92);
+  --radar-bg-b: rgba(2, 6, 23, 0.55);
+  --radar-ring: rgba(226, 232, 240, 0.14);
+
+  --shadow-soft: 0 18px 60px rgba(0, 0, 0, 0.45);
+  --shadow-strong: 0 34px 100px rgba(0, 0, 0, 0.62);
 }
 
-
-
-
-/* optional: smoother theme transitions */
+/* ✅ Optional: smoother theme transitions (but respects reduced motion) */
 html,
 body,
 #root {
   transition: background-color 250ms ease, color 250ms ease;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  html,
+  body,
+  #root {
+    transition: none;
+  }
+}
+
+/* ✅ Cursor (only if you're still using .type-cursor somewhere) */
 .type-cursor {
   display: inline-block;
   margin-left: 0.06em;

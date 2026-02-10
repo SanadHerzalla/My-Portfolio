@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 import useTheme from "./hooks/useTheme";
-import { motion, AnimatePresence } from "framer-motion";
-import { Linkedin, Github } from "lucide-react";
 import DotsBackground from "./components/DotsBackground";
 import Container from "./components/Container";
 import { resumeData } from "./data/resumeData";
@@ -94,104 +92,63 @@ export default function App() {
       <div className="relative z-10">
         <main>
           {/* Hero */}
-          <section className="py-16">
-            <Container>
-              <div className={card} style={cardStyle}>
-                <p className="text-sm" style={mutedStyle}>
-                  {resumeData.title}
-                </p>
-
-                <h1 className="mt-3 text-4xl md:text-5xl font-semibold">
-                  <Typewriter text="Software Developer" speed={55} startDelay={250} />
-                </h1>
-
-                <p className="mt-3 text-lg" style={mutedStyle}>
-                  Welcome to my website
-                </p>
-
-                <p className="mx-auto mt-5 max-w-2xl leading-relaxed" style={mutedStyle}>
-  <Typewriter
-    text={resumeData.description}
-    speed={22}
-    startDelay={350}
-    onDone={() => setShowAbout(true)}
-  />
-  <span className="type-cursor">|</span>
-</p>
-
-
-                <div className="mt-8 flex flex-wrap justify-center gap-3">
-                  <a
-                    href="#projects"
-                    className="rounded-xl px-5 py-2.5 font-medium transition hover:opacity-95"
-                    style={primaryBtnStyle}
-                  >
-                    View Projects
-                  </a>
-
-                  <a
-                    href="#contact"
-                    className="rounded-xl border px-5 py-2.5 transition hover:opacity-95"
-                    style={ghostBtnStyle}
-                  >
-                    Contact
-                  </a>
-                </div>
-              </div>
-            </Container>
-          </section>
-
-          {/* About */}
-<section id="about" className="py-16">
+<section className="py-16">
   <Container>
-    <AnimatePresence>
-      {showAbout && (
-        <motion.div
-          initial={{ opacity: 0, y: 18, filter: "blur(6px)" }}
-          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          exit={{ opacity: 0, y: 10, filter: "blur(6px)" }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
+    <div className={card} style={cardStyle}>
+      <p className="text-sm" style={mutedStyle}>
+        {resumeData.title}
+      </p>
+
+      <h1 className="mt-3 text-4xl md:text-5xl font-semibold">
+        <Typewriter text="Software Developer" speed={55} startDelay={250} />
+        <span className="type-cursor">|</span>
+      </h1>
+
+      <p className="mt-3 text-lg" style={mutedStyle}>
+        Welcome to my website
+      </p>
+
+      {/* ✅ Normal text (not typed) */}
+      <p className="mx-auto mt-5 max-w-2xl leading-relaxed" style={mutedStyle}>
+        {resumeData.description}
+      </p>
+
+      <div className="mt-8 flex flex-wrap justify-center gap-3">
+        <a
+          href="#projects"
+          className="rounded-xl px-5 py-2.5 font-medium transition hover:opacity-95"
+          style={primaryBtnStyle}
         >
-          <div className={cardLeft} style={cardStyle}>
-            <div className="flex items-start justify-between gap-4">
-              <h2 className="text-2xl font-semibold text-left">About</h2>
+          View Projects
+        </a>
 
-              {/* ✅ Circular icon buttons */}
-              <div className="flex items-center gap-2">
-                <a
-                  href={resumeData.links.linkedin}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="h-11 w-11 rounded-full border grid place-items-center transition hover:opacity-95"
-                  style={ghostBtnStyle}
-                  aria-label="LinkedIn"
-                  title="LinkedIn"
-                >
-                  <Linkedin size={18} />
-                </a>
-                <a
-                  href={resumeData.links.github}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="h-11 w-11 rounded-full border grid place-items-center transition hover:opacity-95"
-                  style={ghostBtnStyle}
-                  aria-label="GitHub"
-                  title="GitHub"
-                >
-                  <Github size={18} />
-                </a>
-              </div>
-            </div>
-
-            <p className="mt-4 leading-relaxed text-left" style={mutedStyle}>
-              {resumeData.description}
-            </p>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+        <a
+          href="#contact"
+          className="rounded-xl border px-5 py-2.5 transition hover:opacity-95"
+          style={ghostBtnStyle}
+        >
+          Contact
+        </a>
+      </div>
+    </div>
   </Container>
 </section>
+
+
+{/* About */}
+<section id="about" className="py-16">
+  <Container>
+    <Reveal>
+      <div className={cardLeft} style={cardStyle}>
+        <h2 className="text-2xl font-semibold text-left">About</h2>
+        <p className="mt-4 leading-relaxed text-left" style={mutedStyle}>
+          {resumeData.description}
+        </p>
+      </div>
+    </Reveal>
+  </Container>
+</section>
+
 
 
           {/* Skills */}

@@ -109,9 +109,7 @@ export default function App() {
       </p>
 
       {/* ✅ Normal text (not typed) */}
-      <p className="mx-auto mt-5 max-w-2xl leading-relaxed" style={mutedStyle}>
-        {resumeData.description}
-      </p>
+      
 
       <div className="mt-8 flex flex-wrap justify-center gap-3">
         <a

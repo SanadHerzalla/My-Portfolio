@@ -20,7 +20,6 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
 
   useEffect(() => {
     const calc = () => {
-      // available width (minus padding). Clamp so it never overflows.
       const w = window.innerWidth;
       const s = Math.max(280, Math.min(size, w - 32));
       setAutoSize(s);
@@ -150,29 +149,63 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
     return () => window.removeEventListener("wheel", onWheel);
   }, [done, transitioning]);
 
-  // drag rotate (touch + mouse via pointer events)
+  // ✅ drag rotate (touch + mouse) - supports vertical swipe on mobile
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
 
     let dragging = false;
     let lastX = 0;
+    let lastY = 0;
+
+    // decide which axis is dominant after small movement
+    let axis = null; // "x" | "y" | null
+    const AXIS_LOCK_THRESHOLD = 6; // px
 
     const down = (e) => {
       if (!lockRef.current || done || transitioning) return;
+
       dragging = true;
+      axis = null;
+
       lastX = e.clientX;
+      lastY = e.clientY;
+
       el.setPointerCapture?.(e.pointerId);
     };
 
     const move = (e) => {
       if (!dragging) return;
+
       const dx = e.clientX - lastX;
+      const dy = e.clientY - lastY;
+
       lastX = e.clientX;
-      velRef.current += dx * 0.03;
+      lastY = e.clientY;
+
+      // lock axis once the user moves a bit
+      if (!axis) {
+        if (Math.abs(dx) + Math.abs(dy) < AXIS_LOCK_THRESHOLD) return;
+        axis = Math.abs(dx) >= Math.abs(dy) ? "x" : "y";
+      }
+
+      // Rotation amount
+      // - Horizontal swipe: dx rotates
+      // - Vertical swipe: dy rotates (invert so swipe up feels like "forward")
+      const isTouch = e.pointerType === "touch";
+
+      const delta =
+        axis === "x"
+          ? dx * 0.03
+          : (isTouch ? -dy : dx) * 0.03; // vertical works best for touch
+
+      velRef.current += delta;
     };
 
-    const up = () => (dragging = false);
+    const up = () => {
+      dragging = false;
+      axis = null;
+    };
 
     el.addEventListener("pointerdown", down);
     el.addEventListener("pointermove", move);
@@ -201,7 +234,7 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
           opacity: transitioning ? 0 : 1,
           transform: transitioning ? "scale(0.985)" : "scale(1)",
           transition: "opacity 220ms ease, transform 220ms ease",
-          touchAction: "pan-y", // ✅ allow scrolling vertically while still dragging horizontally
+          touchAction: "pan-y", // ✅ keeps normal scrolling; drag still works
         }}
       >
         {/* radar body */}
@@ -268,7 +301,10 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
               <div className="text-2xl md:text-3xl font-semibold tracking-wide">
                 {current.title.toUpperCase()}
               </div>
-              <div style={{ color: `rgba(var(--muted))` }} className="mt-2 text-xs md:text-sm">
+              <div
+                style={{ color: `rgba(var(--muted))` }}
+                className="mt-2 text-xs md:text-sm"
+              >
                 {done ? "Done — scroll down" : "Scroll / drag to rotate"}
               </div>
             </div>

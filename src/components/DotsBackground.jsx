@@ -108,11 +108,14 @@ export default function DotsBackground({
     initDots();
     rafRef.current = requestAnimationFrame(step);
 
-    // ✅ watch theme change (html.dark toggles)
+    // watch theme change (html.dark toggles)
     const mo = new MutationObserver(() => {
       applyTheme();
     });
-    mo.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    mo.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
 
     const onResize = () => {
       resize();

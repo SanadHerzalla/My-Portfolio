@@ -15,10 +15,26 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
 
   const lockRef = useRef(false);
 
+  // ✅ Responsive size (fits mobile)
+  const [autoSize, setAutoSize] = useState(size);
+
+  useEffect(() => {
+    const calc = () => {
+      // available width (minus padding). Clamp so it never overflows.
+      const w = window.innerWidth;
+      const s = Math.max(280, Math.min(size, w - 32));
+      setAutoSize(s);
+    };
+
+    calc();
+    window.addEventListener("resize", calc);
+    return () => window.removeEventListener("resize", calc);
+  }, [size]);
+
   const current = categories[catIndex];
   const items = current.items;
 
-  const R = size / 2;
+  const R = autoSize / 2;
   const ringR = R * 0.82;
 
   const stepDeg = 360 / items.length;
@@ -83,18 +99,21 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
     }
   };
 
-  // lock only when fully visible
+  // ✅ lock when "mostly visible" (mobile friendly)
   useEffect(() => {
     const onScroll = () => {
       const el = wrapRef.current;
       if (!el || done) return;
 
       const rect = el.getBoundingClientRect();
-      const fullyVisible = rect.top >= 0 && rect.bottom <= window.innerHeight;
-      lockRef.current = fullyVisible;
+      const mostlyVisible =
+        rect.top < window.innerHeight * 0.35 &&
+        rect.bottom > window.innerHeight * 0.35;
+
+      lockRef.current = mostlyVisible;
     };
 
-    window.addEventListener("scroll", onScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
     return () => window.removeEventListener("scroll", onScroll);
   }, [done]);
@@ -117,12 +136,13 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
     return () => cancelAnimationFrame(rafRef.current);
   }, [done, transitioning]);
 
-  // wheel scroll controls rotation
+  // wheel scroll controls rotation (desktop)
   useEffect(() => {
     const onWheel = (e) => {
       if (!lockRef.current || done) return;
-      e.preventDefault();
       if (transitioning) return;
+
+      e.preventDefault();
       velRef.current += e.deltaY * 0.015;
     };
 
@@ -130,7 +150,7 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
     return () => window.removeEventListener("wheel", onWheel);
   }, [done, transitioning]);
 
-  // drag rotate
+  // drag rotate (touch + mouse via pointer events)
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
@@ -171,16 +191,17 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
     <div
       ref={wrapRef}
       className="relative flex justify-center items-center w-full"
-      style={{ minHeight: size }}
+      style={{ minHeight: autoSize }}
     >
       <div
         className="relative"
         style={{
-          width: size,
-          height: size,
+          width: autoSize,
+          height: autoSize,
           opacity: transitioning ? 0 : 1,
           transform: transitioning ? "scale(0.985)" : "scale(1)",
           transition: "opacity 220ms ease, transform 220ms ease",
+          touchAction: "pan-y", // ✅ allow scrolling vertically while still dragging horizontally
         }}
       >
         {/* radar body */}
@@ -199,8 +220,8 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
               key={k}
               className="absolute left-1/2 top-1/2 rounded-full"
               style={{
-                width: size * k,
-                height: size * k,
+                width: autoSize * k,
+                height: autoSize * k,
                 transform: "translate(-50%, -50%)",
                 border: `1px solid var(--radar-ring)`,
                 opacity: 0.55,
@@ -212,8 +233,8 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
           <div
             className="absolute left-1/2 top-1/2"
             style={{
-              width: size,
-              height: size,
+              width: autoSize,
+              height: autoSize,
               transform: `translate(-50%, -50%) rotate(${angle}deg)`,
               background: `conic-gradient(
                 from 180deg,
@@ -229,8 +250,8 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
           <div
             className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center"
             style={{
-              width: size * 0.42,
-              height: size * 0.42,
+              width: autoSize * 0.42,
+              height: autoSize * 0.42,
               borderRadius: 999,
               background: `rgba(var(--card-bg))`,
               border: `1px solid rgba(var(--card-border))`,
@@ -240,20 +261,21 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
               justifyContent: "center",
               boxShadow: "0 24px 80px rgba(0,0,0,0.35)",
               color: `rgb(var(--fg))`,
+              padding: 12,
             }}
           >
             <div>
-              <div className="text-3xl font-semibold tracking-wide">
+              <div className="text-2xl md:text-3xl font-semibold tracking-wide">
                 {current.title.toUpperCase()}
               </div>
-              <div style={{ color: `rgba(var(--muted))` }} className="mt-2 text-sm">
+              <div style={{ color: `rgba(var(--muted))` }} className="mt-2 text-xs md:text-sm">
                 {done ? "Done — scroll down" : "Scroll / drag to rotate"}
               </div>
             </div>
           </div>
         </div>
 
-        {/* ✅ scanner pointer aiming at CURRENT tech (top) */}
+        {/* scanner pointer aiming at CURRENT tech (top) */}
         <div
           className="absolute left-1/2 top-1/2 pointer-events-none"
           style={{ transform: "translate(-50%, -50%)" }}
@@ -324,9 +346,9 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
               }}
             >
               <div
-                className="px-6 py-2.5 rounded-full whitespace-nowrap font-semibold"
+                className="px-4 md:px-6 py-2 md:py-2.5 rounded-full whitespace-nowrap font-semibold"
                 style={{
-                  fontSize: isCurrent ? 15 : 13,
+                  fontSize: isCurrent ? 14 : 12,
                   background: isCurrent
                     ? `rgba(var(--accent), 0.14)`
                     : `rgba(var(--card-bg))`,
@@ -337,7 +359,11 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
                   boxShadow: isCurrent
                     ? `0 18px 60px rgba(var(--accent), 0.18)`
                     : "0 10px 28px rgba(0,0,0,0.25)",
-                  transform: isCurrent ? "scale(1.22)" : isVisited ? "scale(1.03)" : "scale(1)",
+                  transform: isCurrent
+                    ? "scale(1.18)"
+                    : isVisited
+                    ? "scale(1.03)"
+                    : "scale(1)",
                   transition: "all 220ms ease",
                   opacity: isVisited ? 1 : 0.9,
                 }}

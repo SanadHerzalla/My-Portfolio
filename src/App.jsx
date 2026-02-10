@@ -4,6 +4,7 @@ import DotsBackground from "./components/DotsBackground";
 import Container from "./components/Container";
 import { resumeData } from "./data/resumeData";
 import Reveal from "./components/Reveal";
+import { Mail, Linkedin, Github, ArrowUp } from "lucide-react";
 
 import Loader from "./components/Loader";
 import SkillRadar from "./components/SkillRadar";
@@ -13,11 +14,30 @@ import Typewriter from "./components/Typewriter";
 export default function App() {
   const [loading, setLoading] = useState(true);
   const { theme, toggle } = useTheme();
-  const [showAbout, setShowAbout] = useState(false);
+
+  // ✅ 2026: floating “scroll to top”
+  const [showTop, setShowTop] = useState(false);
+
   useEffect(() => {
     const t = setTimeout(() => setLoading(false), 900);
     return () => clearTimeout(t);
   }, []);
+
+  useEffect(() => {
+    const onScroll = () => setShowTop(window.scrollY > 700);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // ✅ Safe guard (prevents blank page if resumeData missing)
+  if (!resumeData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p style={{ color: "rgb(var(--fg))" }}>resumeData is missing.</p>
+      </div>
+    );
+  }
 
   if (loading) return <Loader />;
 
@@ -32,7 +52,14 @@ export default function App() {
     },
     {
       title: "Databases",
-      items: ["MySQL", "MS SQL Server", "Normalization", "Indexes", "Joins", "Advanced Queries"],
+      items: [
+        "MySQL",
+        "MS SQL Server",
+        "Normalization",
+        "Indexes",
+        "Joins",
+        "Advanced Queries",
+      ],
     },
   ];
 
@@ -68,6 +95,13 @@ export default function App() {
     color: `rgb(var(--fg))`,
   };
 
+  const scrollTo = (id) => {
+    document.getElementById(id)?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  };
+
   return (
     <div className="relative min-h-screen" style={{ color: "rgb(var(--fg))" }}>
       <DotsBackground dotCount={420} />
@@ -75,13 +109,14 @@ export default function App() {
       {/* theme toggle (top-right) */}
       <button
         onClick={toggle}
-        className="fixed right-6 top-6 z-50 rounded-full px-4 py-2 text-sm font-semibold transition shadow-lg"
+        className="fixed right-6 top-6 z-50 rounded-full px-4 py-2 text-sm font-semibold transition shadow-lg hover:scale-[1.03] active:scale-[0.99]"
         style={{
           background: `rgba(var(--card-bg))`,
           border: `1px solid rgba(var(--card-border))`,
           color: `rgb(var(--fg))`,
           backdropFilter: "blur(14px)",
         }}
+        aria-label="Toggle theme"
       >
         {theme === "dark" ? "☀ Light" : "🌙 Dark"}
       </button>
@@ -89,65 +124,76 @@ export default function App() {
       {/* Dangling name + hover menu */}
       <DanglingNav theme={theme} toggleTheme={toggle} />
 
+      {/* scroll-to-top */}
+      {showTop ? (
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="fixed bottom-6 right-6 z-50 rounded-full p-3 transition hover:scale-110 active:scale-95"
+          style={{
+            ...ghostBtnStyle,
+            boxShadow: "0 18px 60px rgba(0,0,0,0.25)",
+          }}
+          aria-label="Scroll to top"
+        >
+          <ArrowUp size={18} />
+        </button>
+      ) : null}
+
       <div className="relative z-10">
         <main>
           {/* Hero */}
-<section className="py-16">
-  <Container>
-    <div className={card} style={cardStyle}>
-      <p className="text-sm" style={mutedStyle}>
-        {resumeData.title}
-      </p>
+          <section className="py-16">
+            <Container>
+              <div className={card} style={cardStyle}>
+                <p className="text-sm" style={mutedStyle}>
+                  {resumeData.title}
+                </p>
 
-      <h1 className="mt-3 text-4xl md:text-5xl font-semibold">
-        <Typewriter text="Software Developer" speed={55} startDelay={250} />
-        <span className="type-cursor">|</span>
-      </h1>
+                <h1 className="mt-3 text-4xl md:text-5xl font-semibold">
+                  {/* ✅ If your Typewriter already has cursor built-in, remove the manual cursor */}
+                  <Typewriter text="Software Developer" speed={55} startDelay={250} />
+                </h1>
 
-      <p className="mt-3 text-lg" style={mutedStyle}>
-        Welcome to my website
-      </p>
+                <p className="mt-3 text-lg" style={mutedStyle}>
+                  Welcome to my website
+                </p>
 
-      {/* ✅ Normal text (not typed) */}
-      
+                <div className="mt-8 flex flex-wrap justify-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => scrollTo("projects")}
+                    className="rounded-xl px-5 py-2.5 font-medium transition hover:opacity-95 hover:scale-[1.02] active:scale-[0.99]"
+                    style={primaryBtnStyle}
+                  >
+                    View Projects
+                  </button>
 
-      <div className="mt-8 flex flex-wrap justify-center gap-3">
-        <a
-          href="#projects"
-          className="rounded-xl px-5 py-2.5 font-medium transition hover:opacity-95"
-          style={primaryBtnStyle}
-        >
-          View Projects
-        </a>
+                  <button
+                    type="button"
+                    onClick={() => scrollTo("contact")}
+                    className="rounded-xl border px-5 py-2.5 transition hover:opacity-95 hover:scale-[1.02] active:scale-[0.99]"
+                    style={ghostBtnStyle}
+                  >
+                    Contact
+                  </button>
+                </div>
+              </div>
+            </Container>
+          </section>
 
-        <a
-          href="#contact"
-          className="rounded-xl border px-5 py-2.5 transition hover:opacity-95"
-          style={ghostBtnStyle}
-        >
-          Contact
-        </a>
-      </div>
-    </div>
-  </Container>
-</section>
-
-
-{/* About */}
-<section id="about" className="py-16">
-  <Container>
-    <Reveal>
-      <div className={cardLeft} style={cardStyle}>
-        <h2 className="text-2xl font-semibold text-left">About</h2>
-        <p className="mt-4 leading-relaxed text-left" style={mutedStyle}>
-          {resumeData.description}
-        </p>
-      </div>
-    </Reveal>
-  </Container>
-</section>
-
-
+          {/* About */}
+          <section id="about" className="py-16">
+            <Container>
+              <Reveal>
+                <div className={cardLeft} style={cardStyle}>
+                  <h2 className="text-2xl font-semibold text-left">About</h2>
+                  <p className="mt-4 leading-relaxed text-left" style={mutedStyle}>
+                    {resumeData.description}
+                  </p>
+                </div>
+              </Reveal>
+            </Container>
+          </section>
 
           {/* Skills */}
           <section
@@ -159,7 +205,8 @@ export default function App() {
                 <div className="mb-10 text-center">
                   <h2 className="text-2xl font-semibold">Skills</h2>
                   <p className="mt-2" style={mutedStyle}>
-                    Scroll/drag to rotate. You must visit all skills to move on.
+                    Scroll/drag to rotate. Explore all skills to unlock the next
+                    category.
                   </p>
                 </div>
 
@@ -179,14 +226,14 @@ export default function App() {
               </div>
 
               <div className="grid gap-6 md:grid-cols-2">
-                {resumeData.projects.map((p) => (
+                {(resumeData.projects || []).map((p) => (
                   <Reveal key={p.name}>
                     <div className={cardBox} style={cardStyle}>
                       <div className="flex items-start justify-between gap-3">
                         <h3 className="text-lg font-semibold">{p.name}</h3>
 
                         <div className="flex flex-wrap gap-2 justify-center md:justify-end items-center">
-                          {p.tech.map((t) => (
+                          {(p.tech || []).map((t) => (
                             <span
                               key={t}
                               className="rounded-full border px-3 py-1 text-xs text-center whitespace-nowrap"
@@ -198,8 +245,11 @@ export default function App() {
                         </div>
                       </div>
 
-                      <ul className="mt-4 list-disc pl-5 space-y-2" style={mutedStyle}>
-                        {p.points.map((x, i) => (
+                      <ul
+                        className="mt-4 list-disc pl-5 space-y-2"
+                        style={mutedStyle}
+                      >
+                        {(p.points || []).map((x, i) => (
                           <li key={i}>{x}</li>
                         ))}
                       </ul>
@@ -227,7 +277,7 @@ export default function App() {
                       className={cardBox}
                       style={{
                         ...cardStyle,
-                        animation: `certIn 520ms ease ${(idx * 120)}ms both`,
+                        animation: `certIn 520ms ease ${idx * 120}ms both`,
                       }}
                     >
                       <div className="flex items-start justify-between gap-4">
@@ -275,7 +325,7 @@ export default function App() {
                 </p>
               </div>
 
-              {resumeData.education.map((e) => (
+              {(resumeData.education || []).map((e) => (
                 <Reveal key={e.school}>
                   <div className={cardBox} style={cardStyle}>
                     <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -317,31 +367,45 @@ export default function App() {
                     Phone: {resumeData.phone}
                   </p>
 
-                  <div className="mt-6 flex flex-wrap justify-center gap-3">
+                  <div className="mt-5 flex justify-center gap-4">
                     <a
-                      className="rounded-xl px-5 py-2.5 font-medium transition hover:opacity-95"
-                      style={primaryBtnStyle}
                       href={`mailto:${resumeData.email}`}
+                      aria-label="Email"
+                      className="rounded-full p-3 transition hover:scale-110 active:scale-95"
+                      style={{
+                        ...ghostBtnStyle,
+                        boxShadow: "0 14px 45px rgba(0,0,0,0.22)",
+                      }}
                     >
-                      Email Me
+                      <Mail size={20} />
                     </a>
+
                     <a
-                      className="rounded-xl border px-5 py-2.5 transition hover:opacity-95"
-                      style={ghostBtnStyle}
                       href={resumeData.links.linkedin}
                       target="_blank"
                       rel="noreferrer"
+                      aria-label="LinkedIn"
+                      className="rounded-full p-3 transition hover:scale-110 active:scale-95"
+                      style={{
+                        ...ghostBtnStyle,
+                        boxShadow: "0 14px 45px rgba(0,0,0,0.22)",
+                      }}
                     >
-                      LinkedIn
+                      <Linkedin size={20} />
                     </a>
+
                     <a
-                      className="rounded-xl border px-5 py-2.5 transition hover:opacity-95"
-                      style={ghostBtnStyle}
                       href={resumeData.links.github}
                       target="_blank"
                       rel="noreferrer"
+                      aria-label="GitHub"
+                      className="rounded-full p-3 transition hover:scale-110 active:scale-95"
+                      style={{
+                        ...ghostBtnStyle,
+                        boxShadow: "0 14px 45px rgba(0,0,0,0.22)",
+                      }}
                     >
-                      GitHub
+                      <Github size={20} />
                     </a>
                   </div>
                 </div>

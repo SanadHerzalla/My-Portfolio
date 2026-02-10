@@ -105,7 +105,7 @@ export default function DanglingNav(props) {
                   key={l.id}
                   onClick={() => {
                     go(l.id);
-                    setOpen(false); 
+                    setOpen(false); // ✅ close after selection
                   }}
                   className="text-left rounded-xl px-3 py-2 text-sm transition-all duration-200"
                   style={{ color: `rgba(var(--muted))` }}

@@ -15,8 +15,21 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
 
   const lockRef = useRef(false);
 
-  // ✅ Responsive size (fits mobile)
+  // ✅ Responsive size
   const [autoSize, setAutoSize] = useState(size);
+
+  // ✅ Modern UX
+  const [ghostAngle, setGhostAngle] = useState(0);
+  const [progress, setProgress] = useState(0);
+  const [reduceMotion, setReduceMotion] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia?.("(prefers-reduced-motion: reduce)");
+    const apply = () => setReduceMotion(!!mq?.matches);
+    apply();
+    mq?.addEventListener?.("change", apply);
+    return () => mq?.removeEventListener?.("change", apply);
+  }, []);
 
   useEffect(() => {
     const calc = () => {
@@ -24,9 +37,8 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
       const s = Math.max(280, Math.min(size, w - 32));
       setAutoSize(s);
     };
-
     calc();
-    window.addEventListener("resize", calc);
+    window.addEventListener("resize", calc, { passive: true });
     return () => window.removeEventListener("resize", calc);
   }, [size]);
 
@@ -39,7 +51,6 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
   const stepDeg = 360 / items.length;
   const targetDeg = 270; // top
 
-  // pills on border ring
   const nodes = useMemo(() => {
     return items.map((name, i) => {
       const a = ((i * stepDeg + angle) * Math.PI) / 180;
@@ -47,11 +58,9 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
     });
   }, [items, stepDeg, angle, ringR]);
 
-  // current = closest to target (top)
   const activeIndex = useMemo(() => {
     let best = 0;
     let bestDist = Infinity;
-
     for (let i = 0; i < items.length; i++) {
       const a = ((i * stepDeg + angle) % 360 + 360) % 360;
       const distRaw = Math.abs(a - targetDeg);
@@ -65,10 +74,15 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
   }, [items.length, stepDeg, angle]);
 
   // mark visited
+  const lastActiveRef = useRef(-1);
   useEffect(() => {
     if (done || transitioning) return;
 
-    visitedRef.current.add(activeIndex);
+    if (lastActiveRef.current !== activeIndex) {
+      lastActiveRef.current = activeIndex;
+      visitedRef.current.add(activeIndex);
+      setProgress(visitedRef.current.size / Math.max(1, items.length));
+    }
 
     if (visitedRef.current.size === items.length) {
       goNextCategory();
@@ -84,8 +98,11 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
       await new Promise((r) => setTimeout(r, 220));
 
       visitedRef.current = new Set();
+      lastActiveRef.current = -1;
       velRef.current = 0;
       setAngle(0);
+      setGhostAngle(0);
+      setProgress(0);
       setCatIndex((i) => i + 1);
 
       await new Promise((r) => setTimeout(r, 140));
@@ -98,7 +115,7 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
     }
   };
 
-  // ✅ lock when "mostly visible" (mobile friendly)
+  // ✅ lock when mostly visible
   useEffect(() => {
     const onScroll = () => {
       const el = wrapRef.current;
@@ -117,39 +134,42 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
     return () => window.removeEventListener("scroll", onScroll);
   }, [done]);
 
-  // smooth loop
+  // ✅ smooth loop + ghostAngle lerp (no shape breaking)
   useEffect(() => {
     const tick = () => {
-      velRef.current *= 0.9;
-      if (Math.abs(velRef.current) < 0.01) velRef.current = 0;
+      velRef.current *= reduceMotion ? 0.85 : 0.9;
+      if (Math.abs(velRef.current) < 0.006) velRef.current = 0;
 
-      const idle = done ? 0 : 0.2;
-      if (!done && !transitioning) {
-        setAngle((a) => a + idle + velRef.current);
-      }
+      const idle = done || transitioning || reduceMotion ? 0 : 0.22;
+      if (!done && !transitioning) setAngle((a) => a + idle + velRef.current);
+
+      // lerp ghost sweep
+      setGhostAngle((g) => {
+        const diff = angle - g;
+        return g + diff * (reduceMotion ? 0.25 : 0.16);
+      });
 
       rafRef.current = requestAnimationFrame(tick);
     };
 
     rafRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [done, transitioning]);
+  }, [done, transitioning, reduceMotion, angle]);
 
-  // wheel scroll controls rotation (desktop)
+  // ✅ wheel scroll controls rotation (smooth)
   useEffect(() => {
     const onWheel = (e) => {
-      if (!lockRef.current || done) return;
-      if (transitioning) return;
-
+      if (!lockRef.current || done || transitioning) return;
       e.preventDefault();
-      velRef.current += e.deltaY * 0.015;
+      const delta = Math.max(-80, Math.min(80, e.deltaY));
+      velRef.current += delta * 0.012;
     };
 
     window.addEventListener("wheel", onWheel, { passive: false });
     return () => window.removeEventListener("wheel", onWheel);
   }, [done, transitioning]);
 
-  // ✅ drag rotate (touch + mouse) - supports vertical swipe on mobile
+  // ✅ drag rotate (touch + mouse)
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
@@ -157,20 +177,15 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
     let dragging = false;
     let lastX = 0;
     let lastY = 0;
-
-    // decide which axis is dominant after small movement
-    let axis = null; // "x" | "y" | null
-    const AXIS_LOCK_THRESHOLD = 6; // px
+    let axis = null;
+    const AXIS_LOCK_THRESHOLD = 6;
 
     const down = (e) => {
       if (!lockRef.current || done || transitioning) return;
-
       dragging = true;
       axis = null;
-
       lastX = e.clientX;
       lastY = e.clientY;
-
       el.setPointerCapture?.(e.pointerId);
     };
 
@@ -179,27 +194,18 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
 
       const dx = e.clientX - lastX;
       const dy = e.clientY - lastY;
-
       lastX = e.clientX;
       lastY = e.clientY;
 
-      // lock axis once the user moves a bit
       if (!axis) {
         if (Math.abs(dx) + Math.abs(dy) < AXIS_LOCK_THRESHOLD) return;
         axis = Math.abs(dx) >= Math.abs(dy) ? "x" : "y";
       }
 
-      // Rotation amount
-      // - Horizontal swipe: dx rotates
-      // - Vertical swipe: dy rotates (invert so swipe up feels like "forward")
       const isTouch = e.pointerType === "touch";
-
-      const delta =
-        axis === "x"
-          ? dx * 0.03
-          : (isTouch ? -dy : dx) * 0.03; // vertical works best for touch
-
-      velRef.current += delta;
+      const base = axis === "x" ? dx : isTouch ? -dy : dx;
+      const clamped = Math.max(-28, Math.min(28, base));
+      velRef.current += clamped * 0.028;
     };
 
     const up = () => {
@@ -220,6 +226,8 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
     };
   }, [done, transitioning]);
 
+  const activeName = items[activeIndex];
+
   return (
     <div
       ref={wrapRef}
@@ -234,7 +242,7 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
           opacity: transitioning ? 0 : 1,
           transform: transitioning ? "scale(0.985)" : "scale(1)",
           transition: "opacity 220ms ease, transform 220ms ease",
-          touchAction: "pan-y", // ✅ keeps normal scrolling; drag still works
+          touchAction: "pan-y",
         }}
       >
         {/* radar body */}
@@ -262,27 +270,47 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
             />
           ))}
 
-          {/* sweep glow (theme aware) */}
+          {/* sweep glow (smooth) */}
           <div
             className="absolute left-1/2 top-1/2"
             style={{
               width: autoSize,
               height: autoSize,
-              transform: `translate(-50%, -50%) rotate(${angle}deg)`,
+              transform: `translate(-50%, -50%) rotate(${ghostAngle}deg)`,
               background: `conic-gradient(
                 from 180deg,
                 rgba(var(--accent), 0),
-                rgba(var(--accent), 0.18),
+                rgba(var(--accent), 0.20),
                 rgba(var(--accent), 0)
               )`,
-              opacity: 0.9,
+              opacity: reduceMotion ? 0.7 : 0.92,
             }}
           />
 
-          {/* center badge */}
+          {/* ✅ 2026 progress ring (masked) */}
           <div
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center"
+            className="absolute left-1/2 top-1/2 rounded-full pointer-events-none"
             style={{
+              width: autoSize * 0.92,
+              height: autoSize * 0.92,
+              transform: "translate(-50%, -50%)",
+              background: `conic-gradient(
+                rgba(var(--accent), 0.85) ${Math.floor(progress * 360)}deg,
+                rgba(var(--accent), 0.10) 0deg
+              )`,
+              WebkitMask:
+                "radial-gradient(circle, transparent 62%, #000 64%)",
+              mask: "radial-gradient(circle, transparent 62%, #000 64%)",
+              opacity: done ? 0.9 : 0.65,
+              filter: "drop-shadow(0 0 14px rgba(var(--accent), 0.20))",
+            }}
+          />
+
+          {/* ✅ center badge (FIXED: no Tailwind translate conflict) */}
+          <div
+            className="absolute left-1/2 top-1/2 text-center"
+            style={{
+              transform: "translate(-50%, -50%)",
               width: autoSize * 0.42,
               height: autoSize * 0.42,
               borderRadius: 999,
@@ -307,16 +335,35 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
               >
                 {done ? "Done — scroll down" : "Scroll / drag to rotate"}
               </div>
+
+              {/* modern HUD line */}
+              <div
+                className="mt-3 rounded-2xl px-3 py-2 text-sm font-semibold"
+                style={{
+                  background: `rgba(var(--accent), 0.10)`,
+                  border: `1px solid rgba(var(--accent), 0.22)`,
+                  color: `rgb(var(--fg))`,
+                }}
+              >
+                <span style={{ color: `rgba(var(--muted))` }}>Active:</span>{" "}
+                {activeName}
+              </div>
+
+              <div
+                className="mt-2 text-[11px] tracking-wide"
+                style={{ color: `rgba(var(--muted))` }}
+              >
+                {visitedRef.current.size}/{items.length} explored
+              </div>
             </div>
           </div>
         </div>
 
-        {/* scanner pointer aiming at CURRENT tech (top) */}
+        {/* scanner pointer */}
         <div
           className="absolute left-1/2 top-1/2 pointer-events-none"
           style={{ transform: "translate(-50%, -50%)" }}
         >
-          {/* arm */}
           <div
             style={{
               position: "absolute",
@@ -334,8 +381,6 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
               filter: `drop-shadow(0 0 12px rgba(var(--accent), 0.35))`,
             }}
           />
-
-          {/* tip ring */}
           <div
             style={{
               position: "absolute",
@@ -347,12 +392,10 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
               borderRadius: 999,
               border: `2px solid rgba(var(--accent), 0.72)`,
               boxShadow: `0 0 18px rgba(var(--accent), 0.30)`,
-              animation: `pulseAim 900ms ease-in-out infinite`,
+              animation: reduceMotion ? "none" : `pulseAim 900ms ease-in-out infinite`,
               background: `rgba(var(--accent), 0.08)`,
             }}
           />
-
-          {/* inner dot */}
           <div
             style={{
               position: "absolute",
@@ -368,7 +411,7 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
           />
         </div>
 
-        {/* border ovals */}
+        {/* border pills */}
         {nodes.map((n, i) => {
           const isCurrent = i === activeIndex;
           const isVisited = visitedRef.current.has(i);
@@ -400,7 +443,7 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
                     : isVisited
                     ? "scale(1.03)"
                     : "scale(1)",
-                  transition: "all 220ms ease",
+                  transition: reduceMotion ? "none" : "all 220ms ease",
                   opacity: isVisited ? 1 : 0.9,
                 }}
               >
@@ -410,7 +453,6 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
           );
         })}
 
-        {/* keyframes */}
         <style>{`
           @keyframes pulseAim {
             0%   { transform: translate(-50%, -50%) translateY(-${ringR}px) scale(0.95); opacity: 0.65; }

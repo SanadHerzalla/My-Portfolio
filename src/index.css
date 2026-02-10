@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+html {
+  scroll-behavior: smooth;
+}
+
+.bg-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+}
+
+:root {
+  --bg-canvas: #f8fafc;
+
+  --fg: 17 24 39;
+  --muted: 100 116 139;
+
+  --card-bg: 255 255 255 / 0.75;
+  --card-border: 17 24 39 / 0.08;
+
+  --accent: 59 130 246;
+
+  --dot-a: #1e293b;
+  --dot-b: #94a3b8;
+  --accent: 0 0 0;
+  /* black in light mode */
+}
+
+html.dark {
+  --bg-canvas: #0b1220;
+
+  --fg: 255 255 255;
+  --muted: 148 163 184;
+
+  --card-bg: 255 255 255 / 0.05;
+  --card-border: 255 255 255 / 0.12;
+
+  --accent: 34 211 238;
+
+  --dot-a: #22d3ee;
+  --dot-b: #334155;
+  --accent: 34 211 238;
+  /* cyan in dark mode */
+}
+
+
+
+
+/* optional: smoother theme transitions */
+html,
+body,
+#root {
+  transition: background-color 250ms ease, color 250ms ease;
+}

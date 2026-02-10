@@ -53,3 +53,16 @@ body,
 #root {
   transition: background-color 250ms ease, color 250ms ease;
 }
+
+.type-cursor {
+  display: inline-block;
+  margin-left: 0.06em;
+  animation: blink 1s steps(1, end) infinite;
+  opacity: 0.8;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}

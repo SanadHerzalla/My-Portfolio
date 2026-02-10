@@ -1,31 +1,55 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function Typewriter({
-  text,
-  speed = 55,      // ✅ not too slow
+  text = "",
+  speed = 55,          // ms per character
   startDelay = 250,
   className = "",
+  onDone,              // ✅ NEW
 }) {
   const [out, setOut] = useState("");
+  const doneCalledRef = useRef(false);
 
   useEffect(() => {
-    let i = 0;
-    let t1 = null;
-    let t2 = null;
+    let rafId = 0;
+    let timeoutId = 0;
 
-    t1 = setTimeout(() => {
-      t2 = setInterval(() => {
-        i += 1;
-        setOut(text.slice(0, i));
-        if (i >= text.length) clearInterval(t2);
-      }, speed);
+    let startTs = 0;
+    let lastLen = 0;
+
+    doneCalledRef.current = false;
+    setOut("");
+
+    timeoutId = window.setTimeout(() => {
+      const tick = (ts) => {
+        if (!startTs) startTs = ts;
+
+        const elapsed = ts - startTs;
+        const nextLen = Math.min(text.length, Math.floor(elapsed / speed));
+
+        if (nextLen !== lastLen) {
+          lastLen = nextLen;
+          setOut(text.slice(0, nextLen));
+        }
+
+        if (nextLen < text.length) {
+          rafId = window.requestAnimationFrame(tick);
+        } else {
+          if (!doneCalledRef.current) {
+            doneCalledRef.current = true;
+            onDone?.();
+          }
+        }
+      };
+
+      rafId = window.requestAnimationFrame(tick);
     }, startDelay);
 
     return () => {
-      if (t1) clearTimeout(t1);
-      if (t2) clearInterval(t2);
+      window.clearTimeout(timeoutId);
+      window.cancelAnimationFrame(rafId);
     };
-  }, [text, speed, startDelay]);
+  }, [text, speed, startDelay, onDone]);
 
   return <span className={className}>{out}</span>;
 }

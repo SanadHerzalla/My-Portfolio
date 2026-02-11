@@ -34,9 +34,9 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
   useEffect(() => {
     const calc = () => {
       const w = window.innerWidth;
-const h = window.innerHeight;
-const limiting = Math.min(w - 32, h - 120); // keep space for text + safe areas
-const s = Math.max(280, Math.min(size, limiting));
+      const h = window.innerHeight;
+      const limiting = Math.min(w - 32, h - 120); // keep space for text + safe areas
+      const s = Math.max(280, Math.min(size, limiting));
       setAutoSize(s);
     };
     calc();

@@ -151,7 +151,7 @@ export default function App() {
 
                 <h1 className="mt-3 text-4xl md:text-5xl font-semibold">
                   {/* ✅ If your Typewriter already has cursor built-in, remove the manual cursor */}
-                  <Typewriter text="Software Developer" speed={55} startDelay={250} />
+                  <Typewriter text="Sanad Herzalla" speed={55} startDelay={250} />
                 </h1>
 
                 <p className="mt-3 text-lg" style={mutedStyle}>

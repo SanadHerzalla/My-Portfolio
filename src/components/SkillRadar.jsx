@@ -34,7 +34,9 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
   useEffect(() => {
     const calc = () => {
       const w = window.innerWidth;
-      const s = Math.max(280, Math.min(size, w - 32));
+const h = window.innerHeight;
+const limiting = Math.min(w - 32, h - 120); // keep space for text + safe areas
+const s = Math.max(280, Math.min(size, limiting));
       setAutoSize(s);
     };
     calc();
@@ -317,56 +319,83 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
           />
 
           {/* ✅ center badge (FIXED: no Tailwind translate conflict) */}
-          <div
-            className="absolute left-1/2 top-1/2 text-center"
-            style={{
-              transform: "translate(-50%, -50%)",
-              width: autoSize * 0.42,
-              height: autoSize * 0.42,
-              borderRadius: 999,
-              background: `rgba(var(--card-bg))`,
-              border: `1px solid rgba(var(--card-border))`,
-              backdropFilter: "blur(12px)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              boxShadow: "0 24px 80px rgba(0,0,0,0.35)",
-              color: `rgb(var(--fg))`,
-              padding: 12,
-            }}
-          >
-            <div>
-              <div className="text-2xl md:text-3xl font-semibold tracking-wide">
-                {current.title.toUpperCase()}
-              </div>
-              <div
-                style={{ color: `rgba(var(--muted))` }}
-                className="mt-2 text-xs md:text-sm"
-              >
-                {done ? "Done — scroll down" : "Scroll / drag to rotate"}
-              </div>
+          {/* ✅ center badge (responsive on phones) */}
+<div
+  className="absolute left-1/2 top-1/2 text-center"
+  style={{
+    transform: "translate(-50%, -50%)",
 
-              {/* modern HUD line */}
-              <div
-                className="mt-3 rounded-2xl px-3 py-2 text-sm font-semibold"
-                style={{
-                  background: `rgba(var(--accent), 0.10)`,
-                  border: `1px solid rgba(var(--accent), 0.22)`,
-                  color: `rgb(var(--fg))`,
-                }}
-              >
-                <span style={{ color: `rgba(var(--muted))` }}>Active:</span>{" "}
-                {activeName}
-              </div>
+    // ✅ responsive badge size (never too big / never too small)
+    width: `clamp(170px, ${Math.round(autoSize * 0.42)}px, 320px)`,
+    height: `clamp(170px, ${Math.round(autoSize * 0.42)}px, 320px)`,
 
-              <div
-                className="mt-2 text-[11px] tracking-wide"
-                style={{ color: `rgba(var(--muted))` }}
-              >
-                {visitedRef.current.size}/{items.length} explored
-              </div>
-            </div>
-          </div>
+    borderRadius: 999,
+    background: `rgba(var(--card-bg))`,
+    border: `1px solid rgba(var(--card-border))`,
+    backdropFilter: "blur(12px)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    boxShadow: "0 24px 80px rgba(0,0,0,0.35)",
+    color: `rgb(var(--fg))`,
+    padding: 14,
+
+    // ✅ ensure text stays inside
+    overflow: "hidden",
+  }}
+>
+  <div style={{ width: "100%", paddingInline: 6 }}>
+    {/* ✅ title wraps + scales */}
+    <div
+      className="font-semibold tracking-wide"
+      style={{
+        fontSize: "clamp(14px, 2.6vw, 22px)",
+        lineHeight: 1.1,
+        textTransform: "uppercase",
+        wordBreak: "break-word",
+      }}
+    >
+      {current.title}
+    </div>
+
+    <div
+      className="mt-2"
+      style={{
+        color: `rgba(var(--muted))`,
+        fontSize: "clamp(11px, 2.2vw, 14px)",
+        lineHeight: 1.25,
+      }}
+    >
+      {done ? "Done — scroll down" : "Scroll / drag to rotate"}
+    </div>
+
+    {/* modern HUD line */}
+    <div
+      className="mt-3 rounded-2xl px-3 py-2 font-semibold"
+      style={{
+        background: `rgba(var(--accent), 0.10)`,
+        border: `1px solid rgba(var(--accent), 0.22)`,
+        color: `rgb(var(--fg))`,
+        fontSize: "clamp(12px, 2.4vw, 14px)",
+        lineHeight: 1.2,
+        wordBreak: "break-word",
+      }}
+    >
+      <span style={{ color: `rgba(var(--muted))` }}>Active:</span> {activeName}
+    </div>
+
+    <div
+      className="mt-2 tracking-wide"
+      style={{
+        color: `rgba(var(--muted))`,
+        fontSize: "clamp(10px, 2.0vw, 12px)",
+      }}
+    >
+      {visitedRef.current.size}/{items.length} explored
+    </div>
+  </div>
+</div>
+
         </div>
 
         {/* scanner pointer */}

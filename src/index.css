@@ -17,6 +17,7 @@ body {
   color: rgb(var(--fg));
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 /* Canvas helper */
@@ -27,11 +28,20 @@ body {
 }
 
 /* =========================
-   THEME TOKENS (2026-ready)
+   THEME TOKENS (2025/2026)
    ========================= */
 :root {
+  /* Native UI hint (inputs/scrollbars/etc) */
+  color-scheme: light;
+
   /* Background */
   --bg-canvas: #f8fafc;
+
+  /* Ambient wash (for modern “glow” backgrounds) */
+  --bg-wash-a: rgba(59, 130, 246, 0.10);
+  /* blue */
+  --bg-wash-b: rgba(168, 85, 247, 0.08);
+  /* violet */
 
   /* Text */
   --fg: 17 24 39;
@@ -41,7 +51,7 @@ body {
   --card-bg: 255 255 255 / 0.75;
   --card-border: 17 24 39 / 0.08;
 
-  /* ✅ Single source of truth accent (fix duplicate) */
+  /* Accent */
   --accent: 59 130 246;
 
   /* Dots */
@@ -49,18 +59,33 @@ body {
   --dot-b: #94a3b8;
   --dot-link: rgba(156, 163, 175, 0.18);
 
-  /* ✅ Radar tokens (used by SkillRadar) */
+  /* ✅ Radar tokens */
   --radar-bg-a: rgba(255, 255, 255, 0.92);
   --radar-bg-b: rgba(248, 250, 252, 0.65);
   --radar-ring: rgba(15, 23, 42, 0.12);
 
-  /* ✅ Shadows (optional, consistent) */
+  /* ✅ Consistent system tokens */
+  --radius-lg: 1rem;
+  /* 16px */
+  --radius-xl: 1.25rem;
+  /* 20px */
+  --ring: rgba(59, 130, 246, 0.35);
+
+  /* ✅ Shadows */
   --shadow-soft: 0 18px 60px rgba(0, 0, 0, 0.22);
   --shadow-strong: 0 30px 90px rgba(0, 0, 0, 0.35);
 }
 
 html.dark {
+  color-scheme: dark;
+
   --bg-canvas: #0b1220;
+
+  /* Ambient wash (slightly stronger in dark mode) */
+  --bg-wash-a: rgba(34, 211, 238, 0.12);
+  /* cyan */
+  --bg-wash-b: rgba(99, 102, 241, 0.10);
+  /* indigo */
 
   --fg: 255 255 255;
   --muted: 148 163 184;
@@ -78,11 +103,15 @@ html.dark {
   --radar-bg-b: rgba(2, 6, 23, 0.55);
   --radar-ring: rgba(226, 232, 240, 0.14);
 
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+  --ring: rgba(34, 211, 238, 0.35);
+
   --shadow-soft: 0 18px 60px rgba(0, 0, 0, 0.45);
   --shadow-strong: 0 34px 100px rgba(0, 0, 0, 0.62);
 }
 
-/* ✅ Optional: smoother theme transitions (but respects reduced motion) */
+/* ✅ Optional: smoother theme transitions (respects reduced motion) */
 html,
 body,
 #root {
@@ -99,6 +128,34 @@ body,
   #root {
     transition: none;
   }
+}
+
+/* ✅ Better selection highlight (premium detail) */
+::selection {
+  background: rgba(var(--accent), 0.22);
+}
+
+/* ✅ Nice scrollbar (optional, looks modern) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(var(--accent), 0.35) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(var(--accent), 0.28);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--accent), 0.40);
+  border: 2px solid transparent;
+  background-clip: padding-box;
 }
 
 /* ✅ Cursor (only if you're still using .type-cursor somewhere) */

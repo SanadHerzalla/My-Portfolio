@@ -117,22 +117,31 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
 
   // ✅ lock when mostly visible
   useEffect(() => {
-    const onScroll = () => {
-      const el = wrapRef.current;
-      if (!el || done) return;
-
-      const rect = el.getBoundingClientRect();
-      const mostlyVisible =
-        rect.top < window.innerHeight * 0.35 &&
-        rect.bottom > window.innerHeight * 0.35;
-
-      lockRef.current = mostlyVisible;
-    };
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
+    const el = wrapRef.current;
+    if (!el || done) return;
+  
+    const io = new IntersectionObserver(
+      (entries) => {
+        const v = entries[0]?.isIntersecting;
+        lockRef.current = !!v;
+      },
+      { threshold: 0.55 }
+    );
+  
+    io.observe(el);
+    return () => io.disconnect();
   }, [done]);
+
+  
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === "Escape") {
+        lockRef.current = false;
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   // ✅ smooth loop + ghostAngle lerp (no shape breaking)
   useEffect(() => {
@@ -284,6 +293,7 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
                 rgba(var(--accent), 0)
               )`,
               opacity: reduceMotion ? 0.7 : 0.92,
+              willChange: "transform",
             }}
           />
 

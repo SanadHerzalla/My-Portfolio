@@ -12,7 +12,6 @@ const links = [
 
 export default function DanglingNav(props) {
   const theme = props?.theme ?? "dark";
-  const toggleTheme = props?.toggleTheme ?? (() => {});
 
   const [open, setOpen] = useState(false);
   const [activeId, setActiveId] = useState("about");

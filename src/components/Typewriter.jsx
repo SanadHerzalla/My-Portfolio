@@ -2,10 +2,10 @@ import { useEffect, useRef, useState } from "react";
 
 export default function Typewriter({
   text = "",
-  speed = 55,          // ms per character
+  speed = 55,          
   startDelay = 250,
   className = "",
-  onDone,              // ✅ NEW
+  onDone,              
 }) {
   const [out, setOut] = useState("");
   const doneCalledRef = useRef(false);

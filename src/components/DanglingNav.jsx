@@ -25,7 +25,6 @@ export default function DanglingNav(props) {
   );
 
   const go = (id) => {
-    // ✅ Make active immediately (fixes "contact not turned on" on click)
     setActiveId(id);
 
     document.getElementById(id)?.scrollIntoView({
@@ -34,7 +33,6 @@ export default function DanglingNav(props) {
     });
   };
 
-  // Close on outside click/tap
   useEffect(() => {
     const onDown = (e) => {
       if (!rootRef.current) return;
@@ -44,7 +42,6 @@ export default function DanglingNav(props) {
     return () => window.removeEventListener("pointerdown", onDown);
   }, []);
 
-  // ✅ ESC should close even if focus is NOT in the menu
   useEffect(() => {
     if (!open) return;
 
@@ -56,7 +53,6 @@ export default function DanglingNav(props) {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [open]);
 
-  // Focus management when opening
   useEffect(() => {
     if (!open) return;
 
@@ -68,37 +64,31 @@ export default function DanglingNav(props) {
     requestAnimationFrame(() => itemsRef.current[idx]?.focus?.());
   }, [open, activeId]);
 
-  // Active section tracking (IntersectionObserver + bottom fallback)
   useEffect(() => {
     const els = links.map((l) => document.getElementById(l.id)).filter(Boolean);
     if (!els.length) return;
 
     const obs = new IntersectionObserver(
       (entries) => {
-        // pick the intersecting section closest to top (more stable)
         const intersecting = entries.filter((e) => e.isIntersecting);
         if (!intersecting.length) return;
 
-        // sort by DOM order and choose the first that intersects within the band
         const byOrder = intersecting
           .map((e) => e.target.id)
           .filter(Boolean);
 
-        // choose the last visible section (better for lower sections like contact)
         const lastVisible = byOrder[byOrder.length - 1];
         if (lastVisible) setActiveId(lastVisible);
       },
       {
         root: null,
         threshold: 0.15,
-        // ✅ less aggressive margins so "contact" can register near bottom
         rootMargin: "-20% 0px -55% 0px",
       }
     );
 
     els.forEach((el) => obs.observe(el));
 
-    // ✅ Fallback: if user is near the bottom, mark contact active
     const onScroll = () => {
       const doc = document.documentElement;
       const nearBottom = doc.scrollTop + window.innerHeight >= doc.scrollHeight - 8;
@@ -163,7 +153,6 @@ export default function DanglingNav(props) {
 
   return (
     <div ref={rootRef} className="fixed left-0 top-6 z-50 select-none">
-      {/* hanging line */}
       <div
         className="absolute left-12 -top-6 h-6 w-px"
         style={{
@@ -173,7 +162,6 @@ export default function DanglingNav(props) {
       />
 
       <div className="group relative ml-3">
-        {/* Trigger */}
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
@@ -217,7 +205,6 @@ export default function DanglingNav(props) {
           </span>
         </button>
 
-        {/* Menu container */}
         <div
           className={[
             "transition-all duration-300",

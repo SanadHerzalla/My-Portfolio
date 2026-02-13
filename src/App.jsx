@@ -15,7 +15,6 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const { theme, toggle } = useTheme();
 
-  // ✅ 2026: floating “scroll to top”
   const [showTop, setShowTop] = useState(false);
 
   useEffect(() => {
@@ -30,7 +29,6 @@ export default function App() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // ✅ Safe guard (prevents blank page if resumeData missing)
   if (!resumeData) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -63,7 +61,6 @@ export default function App() {
     },
   ];
 
-  // theme-aware base classes (NO hardcoded colors)
   const cardBase =
     "rounded-3xl backdrop-blur-xl border shadow-[0_18px_60px_rgba(0,0,0,0.22)]";
   const card = `${cardBase} p-10 text-center`;
@@ -106,7 +103,6 @@ export default function App() {
     <div className="relative min-h-screen" style={{ color: "rgb(var(--fg))" }}>
       <DotsBackground dotCount={420} />
 
-      {/* theme toggle (top-right) */}
       <button
         onClick={toggle}
         className="fixed right-6 top-6 z-50 rounded-full px-4 py-2 text-sm font-semibold transition shadow-lg hover:scale-[1.03] active:scale-[0.99]"
@@ -121,10 +117,8 @@ export default function App() {
         {theme === "dark" ? "☀ Light" : "🌙 Dark"}
       </button>
 
-      {/* Dangling name + hover menu */}
       <DanglingNav theme={theme} toggleTheme={toggle} />
 
-      {/* scroll-to-top */}
       {showTop ? (
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
@@ -141,7 +135,6 @@ export default function App() {
 
       <div className="relative z-10">
         <main>
-          {/* Hero */}
           <section className="py-16">
             <Container>
               <div className={card} style={cardStyle}>
@@ -150,7 +143,6 @@ export default function App() {
                 </p>
 
                 <h1 className="mt-3 text-4xl md:text-5xl font-semibold">
-                  {/* ✅ If your Typewriter already has cursor built-in, remove the manual cursor */}
                   <Typewriter text="Sanad Herzalla" speed={55} startDelay={250} />
                 </h1>
 
@@ -315,7 +307,6 @@ export default function App() {
             </Container>
           </section>
 
-          {/* Education */}
           <section id="education" className="py-16">
             <Container>
               <div className="mb-8 text-center">

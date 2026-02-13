@@ -89,7 +89,6 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
     if (visitedRef.current.size === items.length) {
       goNextCategory();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeIndex, done, transitioning, catIndex]);
 
   const goNextCategory = async () => {
@@ -117,7 +116,6 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
     }
   };
 
-  // ✅ lock when mostly visible
   useEffect(() => {
     const el = wrapRef.current;
     if (!el || done) return;
@@ -145,7 +143,6 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  // ✅ smooth loop + ghostAngle lerp (no shape breaking)
   useEffect(() => {
     const tick = () => {
       velRef.current *= reduceMotion ? 0.85 : 0.9;
@@ -154,7 +151,6 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
       const idle = done || transitioning || reduceMotion ? 0 : 0.22;
       if (!done && !transitioning) setAngle((a) => a + idle + velRef.current);
 
-      // lerp ghost sweep
       setGhostAngle((g) => {
         const diff = angle - g;
         return g + diff * (reduceMotion ? 0.25 : 0.16);
@@ -167,7 +163,6 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
     return () => cancelAnimationFrame(rafRef.current);
   }, [done, transitioning, reduceMotion, angle]);
 
-  // ✅ wheel scroll controls rotation (smooth)
   useEffect(() => {
     const onWheel = (e) => {
       if (!lockRef.current || done || transitioning) return;
@@ -180,7 +175,6 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
     return () => window.removeEventListener("wheel", onWheel);
   }, [done, transitioning]);
 
-  // ✅ drag rotate (touch + mouse)
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
@@ -256,7 +250,6 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
           touchAction: "pan-y",
         }}
       >
-        {/* radar body */}
         <div
           className="absolute inset-0 rounded-full"
           style={{
@@ -266,7 +259,6 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
             overflow: "hidden",
           }}
         >
-          {/* rings */}
           {[0.25, 0.5, 0.75, 1].map((k) => (
             <div
               key={k}
@@ -281,7 +273,6 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
             />
           ))}
 
-          {/* sweep glow (smooth) */}
           <div
             className="absolute left-1/2 top-1/2"
             style={{
@@ -299,7 +290,6 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
             }}
           />
 
-          {/* ✅ 2026 progress ring (masked) */}
           <div
             className="absolute left-1/2 top-1/2 rounded-full pointer-events-none"
             style={{
@@ -318,14 +308,11 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
             }}
           />
 
-          {/* ✅ center badge (FIXED: no Tailwind translate conflict) */}
-          {/* ✅ center badge (responsive on phones) */}
 <div
   className="absolute left-1/2 top-1/2 text-center"
   style={{
     transform: "translate(-50%, -50%)",
 
-    // ✅ responsive badge size (never too big / never too small)
     width: `clamp(170px, ${Math.round(autoSize * 0.42)}px, 320px)`,
     height: `clamp(170px, ${Math.round(autoSize * 0.42)}px, 320px)`,
 
@@ -340,12 +327,10 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
     color: `rgb(var(--fg))`,
     padding: 14,
 
-    // ✅ ensure text stays inside
     overflow: "hidden",
   }}
 >
   <div style={{ width: "100%", paddingInline: 6 }}>
-    {/* ✅ title wraps + scales */}
     <div
       className="font-semibold tracking-wide"
       style={{
@@ -369,7 +354,6 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
       {done ? "Done — scroll down" : "Scroll / drag to rotate"}
     </div>
 
-    {/* modern HUD line */}
     <div
       className="mt-3 rounded-2xl px-3 py-2 font-semibold"
       style={{
@@ -398,7 +382,6 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
 
         </div>
 
-        {/* scanner pointer */}
         <div
           className="absolute left-1/2 top-1/2 pointer-events-none"
           style={{ transform: "translate(-50%, -50%)" }}
@@ -450,7 +433,6 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
           />
         </div>
 
-        {/* border pills */}
         {nodes.map((n, i) => {
           const isCurrent = i === activeIndex;
           const isVisited = visitedRef.current.has(i);

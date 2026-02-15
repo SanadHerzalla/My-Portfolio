@@ -15,10 +15,10 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
 
   const lockRef = useRef(false);
 
-  // ✅ Responsive size
+  // âœ… Responsive size
   const [autoSize, setAutoSize] = useState(size);
 
-  // ✅ Modern UX
+  // âœ… Modern UX
   const [ghostAngle, setGhostAngle] = useState(0);
   const [progress, setProgress] = useState(0);
   const [reduceMotion, setReduceMotion] = useState(false);
@@ -64,7 +64,7 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
     let best = 0;
     let bestDist = Infinity;
     for (let i = 0; i < items.length; i++) {
-      const a = ((i * stepDeg + angle) % 360 + 360) % 360;
+      const a = (((i * stepDeg + angle) % 360) + 360) % 360;
       const distRaw = Math.abs(a - targetDeg);
       const dist = Math.min(distRaw, 360 - distRaw);
       if (dist < bestDist) {
@@ -119,20 +119,19 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
   useEffect(() => {
     const el = wrapRef.current;
     if (!el || done) return;
-  
+
     const io = new IntersectionObserver(
       (entries) => {
         const v = entries[0]?.isIntersecting;
         lockRef.current = !!v;
       },
-      { threshold: 0.55 }
+      { threshold: 0.55 },
     );
-  
+
     io.observe(el);
     return () => io.disconnect();
   }, [done]);
 
-  
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === "Escape") {
@@ -210,7 +209,9 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
       const isTouch = e.pointerType === "touch";
       const base = axis === "x" ? dx : isTouch ? -dy : dx;
       const clamped = Math.max(-28, Math.min(28, base));
-      velRef.current += clamped * 0.028;
+      // Increased touch multiplier for better mobile responsiveness
+      const multiplier = isTouch ? 0.042 : 0.028;
+      velRef.current += clamped * multiplier;
     };
 
     const up = () => {
@@ -247,7 +248,7 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
           opacity: transitioning ? 0 : 1,
           transform: transitioning ? "scale(0.985)" : "scale(1)",
           transition: "opacity 220ms ease, transform 220ms ease",
-          touchAction: "pan-y",
+          touchAction: "none",
         }}
       >
         <div
@@ -300,86 +301,85 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
                 rgba(var(--accent), 0.85) ${Math.floor(progress * 360)}deg,
                 rgba(var(--accent), 0.10) 0deg
               )`,
-              WebkitMask:
-                "radial-gradient(circle, transparent 62%, #000 64%)",
+              WebkitMask: "radial-gradient(circle, transparent 62%, #000 64%)",
               mask: "radial-gradient(circle, transparent 62%, #000 64%)",
               opacity: done ? 0.9 : 0.65,
               filter: "drop-shadow(0 0 14px rgba(var(--accent), 0.20))",
             }}
           />
 
-<div
-  className="absolute left-1/2 top-1/2 text-center"
-  style={{
-    transform: "translate(-50%, -50%)",
+          <div
+            className="absolute left-1/2 top-1/2 text-center"
+            style={{
+              transform: "translate(-50%, -50%)",
 
-    width: `clamp(170px, ${Math.round(autoSize * 0.42)}px, 320px)`,
-    height: `clamp(170px, ${Math.round(autoSize * 0.42)}px, 320px)`,
+              width: `clamp(170px, ${Math.round(autoSize * 0.42)}px, 320px)`,
+              height: `clamp(170px, ${Math.round(autoSize * 0.42)}px, 320px)`,
 
-    borderRadius: 999,
-    background: `rgba(var(--card-bg))`,
-    border: `1px solid rgba(var(--card-border))`,
-    backdropFilter: "blur(12px)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    boxShadow: "0 24px 80px rgba(0,0,0,0.35)",
-    color: `rgb(var(--fg))`,
-    padding: 14,
+              borderRadius: 999,
+              background: `rgba(var(--card-bg))`,
+              border: `1px solid rgba(var(--card-border))`,
+              backdropFilter: "blur(12px)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "0 24px 80px rgba(0,0,0,0.35)",
+              color: `rgb(var(--fg))`,
+              padding: 14,
 
-    overflow: "hidden",
-  }}
->
-  <div style={{ width: "100%", paddingInline: 6 }}>
-    <div
-      className="font-semibold tracking-wide"
-      style={{
-        fontSize: "clamp(14px, 2.6vw, 22px)",
-        lineHeight: 1.1,
-        textTransform: "uppercase",
-        wordBreak: "break-word",
-      }}
-    >
-      {current.title}
-    </div>
+              overflow: "hidden",
+            }}
+          >
+            <div style={{ width: "100%", paddingInline: 6 }}>
+              <div
+                className="font-semibold tracking-wide"
+                style={{
+                  fontSize: "clamp(14px, 2.6vw, 22px)",
+                  lineHeight: 1.1,
+                  textTransform: "uppercase",
+                  wordBreak: "break-word",
+                }}
+              >
+                {current.title}
+              </div>
 
-    <div
-      className="mt-2"
-      style={{
-        color: `rgba(var(--muted))`,
-        fontSize: "clamp(11px, 2.2vw, 14px)",
-        lineHeight: 1.25,
-      }}
-    >
-      {done ? "Done — scroll down" : "Scroll / drag to rotate"}
-    </div>
+              <div
+                className="mt-2"
+                style={{
+                  color: `rgba(var(--muted))`,
+                  fontSize: "clamp(11px, 2.2vw, 14px)",
+                  lineHeight: 1.25,
+                }}
+              >
+                {done ? "Done - scroll down" : "Swipe / scroll to rotate"}
+              </div>
 
-    <div
-      className="mt-3 rounded-2xl px-3 py-2 font-semibold"
-      style={{
-        background: `rgba(var(--accent), 0.10)`,
-        border: `1px solid rgba(var(--accent), 0.22)`,
-        color: `rgb(var(--fg))`,
-        fontSize: "clamp(12px, 2.4vw, 14px)",
-        lineHeight: 1.2,
-        wordBreak: "break-word",
-      }}
-    >
-      <span style={{ color: `rgba(var(--muted))` }}>Active:</span> {activeName}
-    </div>
+              <div
+                className="mt-3 rounded-2xl px-3 py-2 font-semibold"
+                style={{
+                  background: `rgba(var(--accent), 0.10)`,
+                  border: `1px solid rgba(var(--accent), 0.22)`,
+                  color: `rgb(var(--fg))`,
+                  fontSize: "clamp(12px, 2.4vw, 14px)",
+                  lineHeight: 1.2,
+                  wordBreak: "break-word",
+                }}
+              >
+                <span style={{ color: `rgba(var(--muted))` }}>Active:</span>{" "}
+                {activeName}
+              </div>
 
-    <div
-      className="mt-2 tracking-wide"
-      style={{
-        color: `rgba(var(--muted))`,
-        fontSize: "clamp(10px, 2.0vw, 12px)",
-      }}
-    >
-      {visitedRef.current.size}/{items.length} explored
-    </div>
-  </div>
-</div>
-
+              <div
+                className="mt-2 tracking-wide"
+                style={{
+                  color: `rgba(var(--muted))`,
+                  fontSize: "clamp(10px, 2.0vw, 12px)",
+                }}
+              >
+                {visitedRef.current.size}/{items.length} explored
+              </div>
+            </div>
+          </div>
         </div>
 
         <div
@@ -414,7 +414,9 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
               borderRadius: 999,
               border: `2px solid rgba(var(--accent), 0.72)`,
               boxShadow: `0 0 18px rgba(var(--accent), 0.30)`,
-              animation: reduceMotion ? "none" : `pulseAim 900ms ease-in-out infinite`,
+              animation: reduceMotion
+                ? "none"
+                : `pulseAim 900ms ease-in-out infinite`,
               background: `rgba(var(--accent), 0.08)`,
             }}
           />
@@ -462,8 +464,8 @@ export default function SkillsRadar({ categories, size = 720, onFinished }) {
                   transform: isCurrent
                     ? "scale(1.18)"
                     : isVisited
-                    ? "scale(1.03)"
-                    : "scale(1)",
+                      ? "scale(1.03)"
+                      : "scale(1)",
                   transition: reduceMotion ? "none" : "all 220ms ease",
                   opacity: isVisited ? 1 : 0.9,
                 }}

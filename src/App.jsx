@@ -4,7 +4,7 @@ import DotsBackground from "./components/DotsBackground";
 import Container from "./components/Container";
 import { resumeData } from "./data/resumeData";
 import Reveal from "./components/Reveal";
-import { Mail, Linkedin, Github, ArrowUp } from "lucide-react";
+import { Mail, Linkedin, Github, ArrowUp, Sun, Moon } from "lucide-react";
 
 import Loader from "./components/Loader";
 import SkillRadar from "./components/SkillRadar";
@@ -103,12 +103,15 @@ export default function App() {
     const el = document.getElementById(id);
     if (!el) return;
 
-    const yOffset = 24;
-    const y = el.getBoundingClientRect().top + window.pageYOffset - yOffset;
+    const prev = el.style.scrollMarginTop;
+    el.style.scrollMarginTop = "96px";
 
-    window.scrollTo({ top: y, behavior: "smooth" });
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
 
-    history.replaceState(null, "", `#${id}`);
+    // restore (keeps layout clean)
+    setTimeout(() => {
+      el.style.scrollMarginTop = prev;
+    }, 700);
   };
 
   return (
@@ -119,7 +122,7 @@ export default function App() {
 
       <button
         onClick={toggle}
-        className="fixed right-6 top-6 z-50 rounded-full px-4 py-2 text-sm font-semibold transition shadow-lg hover:scale-[1.03] active:scale-[0.99]"
+        className="fixed right-6 top-6 z-[60] rounded-full px-4 py-2.5 text-sm font-semibold transition shadow-lg hover:scale-[1.03] active:scale-[0.99] flex items-center gap-2"
         style={{
           background: `rgba(var(--card-bg))`,
           border: `1px solid rgba(var(--card-border))`,
@@ -128,7 +131,17 @@ export default function App() {
         }}
         aria-label="Toggle theme"
       >
-        {theme === "dark" ? "☀ Light" : "🌙 Dark"}
+        {theme === "dark" ? (
+          <>
+            <Sun size={16} />
+            <span>Light</span>
+          </>
+        ) : (
+          <>
+            <Moon size={16} />
+            <span>Dark</span>
+          </>
+        )}
       </button>
 
       <DanglingNav theme={theme} toggleTheme={toggle} />
@@ -136,7 +149,7 @@ export default function App() {
       {showTop ? (
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="fixed bottom-6 right-6 z-50 rounded-full p-3 transition hover:scale-110 active:scale-95"
+          className="fixed bottom-6 right-6 z-[60] rounded-full p-3 transition hover:scale-110 active:scale-95"
           style={{
             ...ghostBtnStyle,
             boxShadow: "0 18px 60px rgba(0,0,0,0.25)",
@@ -147,7 +160,7 @@ export default function App() {
         </button>
       ) : null}
 
-      <div className="relative z-10">
+      <div className="relative z-20">
         <main>
           <section className="py-16">
             <Container>

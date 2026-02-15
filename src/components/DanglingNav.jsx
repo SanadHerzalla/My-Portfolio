@@ -21,7 +21,7 @@ export default function DanglingNav(props) {
 
   const menuId = useMemo(
     () => `dangling-nav-menu-${Math.random().toString(16).slice(2)}`,
-    []
+    [],
   );
 
   const go = (id) => {
@@ -58,7 +58,7 @@ export default function DanglingNav(props) {
 
     const idx = Math.max(
       0,
-      links.findIndex((l) => l.id === activeId)
+      links.findIndex((l) => l.id === activeId),
     );
 
     requestAnimationFrame(() => itemsRef.current[idx]?.focus?.());
@@ -73,9 +73,7 @@ export default function DanglingNav(props) {
         const intersecting = entries.filter((e) => e.isIntersecting);
         if (!intersecting.length) return;
 
-        const byOrder = intersecting
-          .map((e) => e.target.id)
-          .filter(Boolean);
+        const byOrder = intersecting.map((e) => e.target.id).filter(Boolean);
 
         const lastVisible = byOrder[byOrder.length - 1];
         if (lastVisible) setActiveId(lastVisible);
@@ -84,14 +82,15 @@ export default function DanglingNav(props) {
         root: null,
         threshold: 0.15,
         rootMargin: "-20% 0px -55% 0px",
-      }
+      },
     );
 
     els.forEach((el) => obs.observe(el));
 
     const onScroll = () => {
       const doc = document.documentElement;
-      const nearBottom = doc.scrollTop + window.innerHeight >= doc.scrollHeight - 8;
+      const nearBottom =
+        doc.scrollTop + window.innerHeight >= doc.scrollHeight - 8;
       if (nearBottom) setActiveId("contact");
     };
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -115,7 +114,9 @@ export default function DanglingNav(props) {
   };
 
   const onMenuKeyDown = (e) => {
-    const currentIndex = itemsRef.current.findIndex((n) => n === document.activeElement);
+    const currentIndex = itemsRef.current.findIndex(
+      (n) => n === document.activeElement,
+    );
     const last = links.length - 1;
 
     if (e.key === "Escape") {
@@ -152,7 +153,7 @@ export default function DanglingNav(props) {
   };
 
   return (
-    <div ref={rootRef} className="fixed left-0 top-6 z-50 select-none">
+    <div ref={rootRef} className="fixed left-0 top-6 z-40 select-none">
       <div
         className="absolute left-12 -top-6 h-6 w-px"
         style={{
@@ -185,11 +186,14 @@ export default function DanglingNav(props) {
             className="h-2.5 w-2.5 rounded-full"
             style={{
               background: `rgb(var(--accent))`,
-              boxShadow: theme === "dark" ? `0 0 14px rgba(var(--accent),0.85)` : "none",
+              boxShadow:
+                theme === "dark" ? `0 0 14px rgba(var(--accent),0.85)` : "none",
             }}
           />
           <div className="flex flex-col leading-tight">
-            <span className="font-semibold tracking-wide">{resumeData.name}</span>
+            <span className="font-semibold tracking-wide">
+              {resumeData.name}
+            </span>
             <span className="text-xs tracking-wide opacity-70">Navigation</span>
           </div>
 
@@ -213,6 +217,10 @@ export default function DanglingNav(props) {
               : "opacity-0 translate-y-2 pointer-events-none",
             "md:group-hover:opacity-100 md:group-hover:translate-y-0 md:group-hover:pointer-events-auto",
           ].join(" ")}
+          style={{
+            // Ensure dropdown doesn't block content below when closed
+            position: open ? "relative" : "absolute",
+          }}
         >
           <div
             id={menuId}
@@ -235,8 +243,6 @@ export default function DanglingNav(props) {
               >
                 Sections
               </div>
-
-              
             </div>
 
             <div className="flex flex-col gap-1">
@@ -260,17 +266,25 @@ export default function DanglingNav(props) {
                       "focus:outline-none focus:ring-2 focus:ring-offset-2",
                     ].join(" ")}
                     style={{
-                      background: isActive ? `rgba(var(--accent),0.16)` : "transparent",
+                      background: isActive
+                        ? `rgba(var(--accent),0.16)`
+                        : "transparent",
                       color: isActive ? `rgb(var(--fg))` : `rgba(var(--muted))`,
-                      border: isActive ? `1px solid rgba(var(--accent),0.22)` : "1px solid transparent",
+                      border: isActive
+                        ? `1px solid rgba(var(--accent),0.22)`
+                        : "1px solid transparent",
                     }}
                   >
                     <span className="flex items-center gap-2">
                       <span
                         className="h-2 w-2 rounded-full"
                         style={{
-                          background: isActive ? `rgb(var(--accent))` : `rgba(var(--muted))`,
-                          boxShadow: isActive ? `0 0 10px rgba(var(--accent),0.75)` : "none",
+                          background: isActive
+                            ? `rgb(var(--accent))`
+                            : `rgba(var(--muted))`,
+                          boxShadow: isActive
+                            ? `0 0 10px rgba(var(--accent),0.75)`
+                            : "none",
                         }}
                       />
                       {l.label}
@@ -287,7 +301,10 @@ export default function DanglingNav(props) {
               })}
             </div>
 
-            <div className="pt-3 text-[11px]" style={{ color: `rgba(var(--muted))` }}>
+            <div
+              className="pt-3 text-[11px]"
+              style={{ color: `rgba(var(--muted))` }}
+            >
               Tip: Use <span style={{ color: `rgb(var(--fg))` }}>↑ ↓</span>,{" "}
               <span style={{ color: `rgb(var(--fg))` }}>Enter</span>{" "}
             </div>

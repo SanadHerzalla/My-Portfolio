@@ -37,7 +37,7 @@ body {
   /* Background */
   --bg-canvas: #f8fafc;
 
-  /* Ambient wash (for modern “glow” backgrounds) */
+  /* Ambient wash (for modern "glow" backgrounds) */
   --bg-wash-a: rgba(59, 130, 246, 0.10);
   /* blue */
   --bg-wash-b: rgba(168, 85, 247, 0.08);
@@ -111,11 +111,29 @@ html.dark {
   --shadow-strong: 0 34px 100px rgba(0, 0, 0, 0.62);
 }
 
-/* ✅ Optional: smoother theme transitions (respects reduced motion) */
+/* ========================================
+   🎨 2026 UI ENHANCEMENTS
+   ======================================== */
+
+/* ✅ Smooth theme transitions (respects reduced motion) */
 html,
 body,
 #root {
   transition: background-color 250ms ease, color 250ms ease;
+}
+
+/* Apply smooth transitions to color properties for theme switching */
+*,
+*::before,
+*::after {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-duration: 200ms;
+  transition-timing-function: ease-in-out;
+}
+
+/* Exclude transform and opacity from automatic transitions for performance */
+*:is([style*="transform"], [style*="opacity"]) {
+  transition-property: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -125,17 +143,28 @@ body,
 
   html,
   body,
-  #root {
-    transition: none;
+  #root,
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
   }
 }
 
 /* ✅ Better selection highlight (premium detail) */
 ::selection {
   background: rgba(var(--accent), 0.22);
+  color: rgb(var(--fg));
 }
 
-/* ✅ Nice scrollbar (optional, looks modern) */
+::-moz-selection {
+  background: rgba(var(--accent), 0.22);
+  color: rgb(var(--fg));
+}
+
+/* ✅ Nice scrollbar (modern look) */
 * {
   scrollbar-width: thin;
   scrollbar-color: rgba(var(--accent), 0.35) transparent;
@@ -143,6 +172,10 @@ body,
 
 *::-webkit-scrollbar {
   width: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 *::-webkit-scrollbar-thumb {
@@ -158,7 +191,123 @@ body,
   background-clip: padding-box;
 }
 
-/* ✅ Cursor (only if you're still using .type-cursor somewhere) */
+/* ========================================
+   🪄 GLASS MORPHISM UTILITIES
+   ======================================== */
+
+.glass-low {
+  background: rgba(var(--card-bg), 0.6) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.glass-medium {
+  background: rgba(var(--card-bg), 0.7) !important;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.glass-high {
+  background: rgba(var(--card-bg), 0.8) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* ========================================
+   ✨ GRADIENT TEXT UTILITIES
+   ======================================== */
+
+.gradient-text {
+  background: linear-gradient(
+    to right,
+    rgb(var(--fg)),
+    rgba(var(--accent), 1)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.gradient-text-accent {
+  background: linear-gradient(
+    135deg,
+    rgba(var(--accent), 1),
+    rgba(var(--accent), 0.6)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* ========================================
+   🎯 FOCUS STATES (Accessibility)
+   ======================================== */
+
+*:focus-visible {
+  outline: 2px solid rgb(var(--accent));
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline-offset: 4px;
+}
+
+/* ========================================
+   🎬 ANIMATION KEYFRAMES
+   ======================================== */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(var(--accent), 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(var(--accent), 0.5);
+  }
+}
+
+/* ✅ Cursor (typewriter effect) */
 .type-cursor {
   display: inline-block;
   margin-left: 0.06em;
@@ -169,5 +318,237 @@ body,
 @keyframes blink {
   50% {
     opacity: 0;
+  }
+}
+
+/* ========================================
+   🎨 UTILITY CLASSES
+   ======================================== */
+
+.fade-in {
+  animation: fadeIn 500ms ease-in-out;
+}
+
+.slide-up {
+  animation: slideUp 500ms ease-out;
+}
+
+.shimmer {
+  animation: shimmer 2s infinite;
+}
+
+.pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.glow {
+  animation: glow 2s ease-in-out infinite;
+}
+
+/* ========================================
+   🎴 CARD UTILITIES
+   ======================================== */
+
+.card-base {
+  border-radius: var(--radius-xl);
+  border: 1px solid rgba(var(--card-border));
+  box-shadow: var(--shadow-soft);
+}
+
+.card-hover {
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-strong);
+}
+
+/* ========================================
+   🔘 BUTTON UTILITIES
+   ======================================== */
+
+.btn-primary {
+  background: rgb(var(--accent));
+  color: #ffffff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-lg);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 200ms ease;
+  box-shadow: 0 10px 40px rgba(var(--accent), 0.3);
+}
+
+.btn-primary:hover {
+  transform: scale(1.02);
+  box-shadow: 0 14px 50px rgba(var(--accent), 0.4);
+}
+
+.btn-primary:active {
+  transform: scale(0.99);
+}
+
+.btn-ghost {
+  background: rgba(var(--card-bg));
+  color: rgb(var(--fg));
+  border: 1px solid rgba(var(--card-border));
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-lg);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 200ms ease;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.btn-ghost:hover {
+  transform: scale(1.02);
+  border-color: rgba(var(--accent), 0.5);
+}
+
+.btn-ghost:active {
+  transform: scale(0.99);
+}
+
+/* ========================================
+   📐 LAYOUT HELPERS
+   ======================================== */
+
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* ========================================
+   🎪 BENTO GRID (Modern Layout)
+   ======================================== */
+
+.bento-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(1, 1fr);
+  grid-auto-rows: minmax(200px, auto);
+}
+
+@media (min-width: 768px) {
+  .bento-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ========================================
+   ⚡ PERFORMANCE OPTIMIZATIONS
+   ======================================== */
+
+/* Enable GPU acceleration for transforms */
+.gpu-accelerate {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* Contain layout shifts */
+.contain-layout {
+  contain: layout;
+}
+
+/* Contain paint for better performance */
+.contain-paint {
+  contain: paint;
+}
+
+/* ========================================
+   🎭 HOVER EFFECTS
+   ======================================== */
+
+.hover-lift {
+  transition: transform 200ms ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+}
+
+.hover-glow {
+  transition: box-shadow 200ms ease;
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 30px rgba(var(--accent), 0.4);
+}
+
+.hover-scale {
+  transition: transform 200ms ease;
+}
+
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+
+/* ========================================
+   🌙 DARK MODE ADJUSTMENTS
+   ======================================== */
+
+html.dark .shadow-custom {
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+html.dark .border-custom {
+  border-color: rgba(var(--card-border), 0.3);
+}
+
+/* ========================================
+   💀 LOADING STATES
+   ======================================== */
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(var(--card-bg), 0.5) 0%,
+    rgba(var(--card-bg), 0.8) 50%,
+    rgba(var(--card-bg), 0.5) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-lg);
+}
+
+/* ========================================
+   🖨️ PRINT STYLES
+   ======================================== */
+
+@media print {
+  * {
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+  }
+  
+  .no-print,
+  nav,
+  button {
+    display: none !important;
+  }
+  
+  a {
+    text-decoration: underline;
   }
 }

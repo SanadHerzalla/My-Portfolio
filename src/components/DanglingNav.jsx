@@ -12,6 +12,7 @@ const links = [
 
 export default function DanglingNav(props) {
   const theme = props?.theme ?? "dark";
+  const showNav = props?.showNav ?? true;
 
   const [open, setOpen] = useState(false);
   const [activeId, setActiveId] = useState("about");
@@ -153,7 +154,14 @@ export default function DanglingNav(props) {
   };
 
   return (
-    <div ref={rootRef} className="fixed left-0 top-6 z-40 select-none">
+    <div
+      ref={rootRef}
+      className="fixed left-0 top-6 z-40 select-none transition-all duration-300"
+      style={{
+        transform: showNav ? "translateX(0)" : "translateX(-100%)",
+        opacity: showNav ? 1 : 0,
+      }}
+    >
       <div
         className="absolute left-12 -top-6 h-6 w-px"
         style={{
@@ -218,7 +226,6 @@ export default function DanglingNav(props) {
             "md:group-hover:opacity-100 md:group-hover:translate-y-0 md:group-hover:pointer-events-auto",
           ].join(" ")}
           style={{
-            // Ensure dropdown doesn't block content below when closed
             position: open ? "relative" : "absolute",
           }}
         >

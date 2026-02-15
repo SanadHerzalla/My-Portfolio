@@ -28,6 +28,8 @@ export default function App() {
 
   const [showTop, setShowTop] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [showNav, setShowNav] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
 
   useEffect(() => {
     const t = setTimeout(() => setLoading(false), 2000);
@@ -35,22 +37,51 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const onScroll = () => {
-      setShowTop(window.scrollY > 700);
+    let ticking = false;
 
-      // Calculate scroll progress for progress bar
-      const winScroll = document.documentElement.scrollTop;
-      const height =
-        document.documentElement.scrollHeight -
-        document.documentElement.clientHeight;
-      const scrolled = (winScroll / height) * 100;
-      setScrollProgress(scrolled);
+    const onScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const currentScrollY = window.scrollY;
+
+          // Show/hide scroll-to-top button
+          setShowTop(currentScrollY > 700);
+
+          // Calculate scroll progress for progress bar
+          const winScroll = document.documentElement.scrollTop;
+          const height =
+            document.documentElement.scrollHeight -
+            document.documentElement.clientHeight;
+          const scrolled = (winScroll / height) * 100;
+          setScrollProgress(scrolled);
+
+          // Hide nav when scrolling down significantly, show when scrolling up
+          // Added threshold to prevent jittery behavior
+          const scrollDifference = currentScrollY - lastScrollY;
+
+          if (scrollDifference > 50 && currentScrollY > 200) {
+            // Scrolling down significantly
+            setShowNav(false);
+          } else if (scrollDifference < -10) {
+            // Scrolling up
+            setShowNav(true);
+          } else if (currentScrollY < 100) {
+            // Near top of page
+            setShowNav(true);
+          }
+
+          setLastScrollY(currentScrollY);
+          ticking = false;
+        });
+
+        ticking = true;
+      }
     };
 
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [lastScrollY]);
 
   if (!resumeData) {
     return (
@@ -146,14 +177,21 @@ export default function App() {
         )}
       </button>
 
-      <DanglingNav theme={theme} toggleTheme={toggle} />
+      <DanglingNav theme={theme} showNav={showNav} />
 
       {/* Enhanced Scroll to Top with Magnetic Effect */}
-      {showTop ? (
+      <div
+        className="fixed bottom-6 right-6 z-50 transition-all duration-300"
+        style={{
+          opacity: showTop ? 1 : 0,
+          transform: showTop ? "translateY(0)" : "translateY(20px)",
+          pointerEvents: showTop ? "auto" : "none",
+        }}
+      >
         <MagneticButton strength={0.4}>
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="fixed bottom-6 right-6 z-50 rounded-full p-3 transition-all duration-300 hover:scale-110 active:scale-95 group"
+            className="rounded-full p-3 transition-all duration-300 hover:scale-110 active:scale-95 group"
             style={{
               background: `rgba(var(--card-bg))`,
               border: `1px solid rgba(var(--card-border))`,
@@ -165,12 +203,12 @@ export default function App() {
             aria-label="Scroll to top"
           >
             <ArrowUp
-              size={18}
+              size={20}
               className="group-hover:-translate-y-0.5 transition-transform"
             />
           </button>
         </MagneticButton>
-      ) : null}
+      </div>
 
       <div className="relative z-10">
         <main>

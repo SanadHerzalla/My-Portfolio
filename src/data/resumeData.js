@@ -62,11 +62,10 @@ export const resumeData = {
 
     projects: [
         {
-            name: "Project Management System",
+            name: "Quiz App Application",
             tech: ["React.js", "Tailwind CSS"],
             points: [
-                "Built a project management app using a scalable component-based architecture.",
-                "Focused on maintainable UI structure and reusability as the app grows.",
+                "Built a dynamic Quiz Application using React that allows users to answer timed multiple-choice questions."
             ],
         },
         {
@@ -76,6 +75,15 @@ export const resumeData = {
                 "Implemented state management and game logic (turns, win/draw detection, reset).",
             ],
         },
+        {
+            name: "Project Management System",
+            tech: ["React.js", "Tailwind CSS"],
+            points: [
+                "Built a project management app using a scalable component-based architecture.",
+                "Focused on maintainable UI structure and reusability as the app grows.",
+            ],
+        },
+        
         {
             name: "Pharmacy Management System (Analysis + DB Design)",
             tech: ["MS SQL Server"],
@@ -97,13 +105,7 @@ export const resumeData = {
                 "Built a donation workflow with validation and database-backed tracking.",
             ],
         },
-        {
-            name: "Quiz App Application",
-            tech: ["React.js", "Tailwind CSS"],
-            points: [
-                "Built a dynamic Quiz Application using React that allows users to answer timed multiple-choice questions."
-            ],
-        },
+        
 
     ],
 

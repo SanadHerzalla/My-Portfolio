@@ -30,7 +30,7 @@ export default function App() {
   const [scrollProgress, setScrollProgress] = useState(0);
 
   useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 1800); // Changed from 900 to 1800
+    const t = setTimeout(() => setLoading(false), 2000);
     return () => clearTimeout(t);
   }, []);
 

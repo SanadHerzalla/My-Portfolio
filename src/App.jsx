@@ -42,7 +42,14 @@ export default function App() {
   const skillCategories = [
     {
       title: "Front End",
-      items: ["React", "JavaScript", "TypeScript", "HTML", "CSS", "Tailwind CSS"],
+      items: [
+        "React",
+        "JavaScript",
+        "TypeScript",
+        "HTML",
+        "CSS",
+        "Tailwind CSS",
+      ],
     },
     {
       title: "Back End",
@@ -93,15 +100,22 @@ export default function App() {
   };
 
   const scrollTo = (id) => {
-    document.getElementById(id)?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    const yOffset = 24;
+    const y = el.getBoundingClientRect().top + window.pageYOffset - yOffset;
+
+    window.scrollTo({ top: y, behavior: "smooth" });
+
+    history.replaceState(null, "", `#${id}`);
   };
 
   return (
     <div className="relative min-h-screen" style={{ color: "rgb(var(--fg))" }}>
-      <DotsBackground dotCount={420} />
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <DotsBackground dotCount={420} />
+      </div>
 
       <button
         onClick={toggle}
@@ -143,7 +157,11 @@ export default function App() {
                 </p>
 
                 <h1 className="mt-3 text-4xl md:text-5xl font-semibold">
-                  <Typewriter text="Sanad Herzalla" speed={55} startDelay={250} />
+                  <Typewriter
+                    text="Sanad Herzalla"
+                    speed={55}
+                    startDelay={250}
+                  />
                 </h1>
 
                 <p className="mt-3 text-lg" style={mutedStyle}>
@@ -179,7 +197,10 @@ export default function App() {
               <Reveal>
                 <div className={cardLeft} style={cardStyle}>
                   <h2 className="text-2xl font-semibold text-left">About</h2>
-                  <p className="mt-4 leading-relaxed text-left" style={mutedStyle}>
+                  <p
+                    className="mt-4 leading-relaxed text-left"
+                    style={mutedStyle}
+                  >
                     {resumeData.description}
                   </p>
                 </div>
@@ -220,7 +241,10 @@ export default function App() {
               <div className="grid gap-6 md:grid-cols-2 auto-rows-fr">
                 {(resumeData.projects || []).map((p) => (
                   <Reveal key={p.name}>
-                    <div className={`${cardBox} h-full flex flex-col`} style={cardStyle}>
+                    <div
+                      className={`${cardBox} h-full flex flex-col`}
+                      style={cardStyle}
+                    >
                       <div className="flex items-start justify-between gap-3">
                         <h3 className="text-lg font-semibold">{p.name}</h3>
 
@@ -238,8 +262,8 @@ export default function App() {
                       </div>
 
                       <ul
-                      className="mt-4 list-disc pl-5 space-y-2 flex-1"
-                      style={mutedStyle}
+                        className="mt-4 list-disc pl-5 space-y-2 flex-1"
+                        style={mutedStyle}
                       >
                         {(p.points || []).map((x, i) => (
                           <li key={i}>{x}</li>

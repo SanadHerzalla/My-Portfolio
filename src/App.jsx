@@ -1,97 +1,150 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import useTheme from "./hooks/useTheme";
-import DotsBackground from "./components/DotsBackground";
+import AuroraBackground from "./components/AuroraBackground";
 import Container from "./components/Container";
 import { resumeData } from "./data/resumeData";
 import Reveal from "./components/Reveal";
-import {
-  Mail,
-  Linkedin,
-  Github,
-  ArrowUp,
-  Sparkles,
-  Sun,
-  Moon,
-} from "lucide-react";
+import { Mail, Linkedin, Github, ArrowUp, Sun, Moon } from "lucide-react";
 import Loader from "./components/Loader";
 import SkillRadar from "./components/SkillRadar";
-import DanglingNav from "./components/DanglingNav";
+import FloatingNav from "./components/FloatingNav";
 import Typewriter from "./components/Typewriter";
 import MagneticButton from "./components/MagneticButton";
 import BentoProjects from "./components/BentoProjects";
 import GlassMorphCard from "./components/GlassMorphCard";
 import TiltCard from "./components/TiltCard";
 
+/* ── Cursor glow trail ── */
+function CursorGlow() {
+  const glowRef = useRef(null);
+  const pos = useRef({ x: -400, y: -400 });
+  const cur = useRef({ x: -400, y: -400 });
+  const rafRef = useRef(0);
+
+  useEffect(() => {
+    const onMove = (e) => {
+      pos.current = { x: e.clientX, y: e.clientY };
+    };
+    window.addEventListener("pointermove", onMove, { passive: true });
+
+    const tick = () => {
+      cur.current.x += (pos.current.x - cur.current.x) * 0.11;
+      cur.current.y += (pos.current.y - cur.current.y) * 0.11;
+      if (glowRef.current) {
+        glowRef.current.style.transform = `translate(${cur.current.x}px, ${cur.current.y}px) translate(-50%, -50%)`;
+      }
+      rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
+
+  return (
+    <div
+      ref={glowRef}
+      aria-hidden="true"
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        zIndex: 1,
+        pointerEvents: "none",
+        width: 420,
+        height: 420,
+        borderRadius: "50%",
+        background:
+          "radial-gradient(circle, rgba(var(--accent),0.07) 0%, transparent 70%)",
+        willChange: "transform",
+      }}
+    />
+  );
+}
+
 export default function App() {
   const [loading, setLoading] = useState(true);
+  const [skipVisible, setSkipVisible] = useState(false);
   const { theme, toggle } = useTheme();
-
   const [showTop, setShowTop] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [showNav, setShowNav] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
 
   useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 2000);
+    const t = setTimeout(() => setSkipVisible(true), 1000);
+    return () => clearTimeout(t);
+  }, []);
+
+  useEffect(() => {
+    const t = setTimeout(() => setLoading(false), 1000);
     return () => clearTimeout(t);
   }, []);
 
   useEffect(() => {
     let ticking = false;
-
     const onScroll = () => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
-          const currentScrollY = window.scrollY;
-
-          // Show/hide scroll-to-top button
-          setShowTop(currentScrollY > 700);
-
-          // Calculate scroll progress for progress bar
-          const winScroll = document.documentElement.scrollTop;
-          const height =
+          const y = window.scrollY;
+          setShowTop(y > 700);
+          const h =
             document.documentElement.scrollHeight -
             document.documentElement.clientHeight;
-          const scrolled = (winScroll / height) * 100;
-          setScrollProgress(scrolled);
-
-          // Hide nav when scrolling down significantly, show when scrolling up
-          // Added threshold to prevent jittery behavior
-          const scrollDifference = currentScrollY - lastScrollY;
-
-          if (scrollDifference > 50 && currentScrollY > 200) {
-            // Scrolling down significantly
-            setShowNav(false);
-          } else if (scrollDifference < -10) {
-            // Scrolling up
-            setShowNav(true);
-          } else if (currentScrollY < 100) {
-            // Near top of page
-            setShowNav(true);
-          }
-
-          setLastScrollY(currentScrollY);
+          setScrollProgress((document.documentElement.scrollTop / h) * 100);
+          const diff = y - lastScrollY;
+          if (diff > 50 && y > 200) setShowNav(false);
+          else if (diff < -10) setShowNav(true);
+          else if (y < 100) setShowNav(true);
+          setLastScrollY(y);
           ticking = false;
         });
-
         ticking = true;
       }
     };
-
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
     return () => window.removeEventListener("scroll", onScroll);
   }, [lastScrollY]);
 
-  if (!resumeData) {
+  if (!resumeData)
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p style={{ color: "rgb(var(--fg))" }}>resumeData is missing.</p>
       </div>
     );
-  }
 
-  if (loading) return <Loader />;
+  if (loading)
+    return (
+      <div style={{ position: "relative" }}>
+        <Loader />
+        <button
+          onClick={() => setLoading(false)}
+          style={{
+            position: "fixed",
+            bottom: 32,
+            right: 32,
+            zIndex: 10000,
+            opacity: skipVisible ? 1 : 0,
+            transform: skipVisible ? "translateY(0)" : "translateY(8px)",
+            transition: "opacity 400ms ease, transform 400ms ease",
+            background: "rgba(255,255,255,0.08)",
+            border: "1px solid rgba(255,255,255,0.15)",
+            color: "rgba(255,255,255,0.75)",
+            borderRadius: 12,
+            padding: "8px 20px",
+            fontSize: 13,
+            fontWeight: 600,
+            cursor: "pointer",
+            backdropFilter: "blur(12px)",
+            letterSpacing: "0.05em",
+          }}
+        >
+          Skip →
+        </button>
+      </div>
+    );
 
   const skillCategories = [
     {
@@ -125,34 +178,29 @@ export default function App() {
   const scrollTo = (id) => {
     const el = document.getElementById(id);
     if (!el) return;
-
-    const prev = el.style.scrollMarginTop;
     el.style.scrollMarginTop = "96px";
-
     el.scrollIntoView({ behavior: "smooth", block: "start" });
-
     setTimeout(() => {
-      el.style.scrollMarginTop = prev;
+      el.style.scrollMarginTop = "";
     }, 700);
   };
 
   return (
     <div className="relative min-h-screen" style={{ color: "rgb(var(--fg))" }}>
-      {/* Scroll Progress Bar - Modern 2026 Feature */}
+      {/* Progress bar */}
       <div
-        className="fixed top-0 left-0 h-1 z-[60] transition-all duration-300"
+        className="fixed top-0 left-0 h-[3px] z-[60] transition-all duration-300"
         style={{
           width: `${scrollProgress}%`,
-          background: `linear-gradient(90deg, rgb(var(--accent)), rgba(var(--accent), 0.5))`,
-          boxShadow: `0 0 20px rgba(var(--accent), 0.5)`,
+          background: `linear-gradient(90deg, rgb(var(--accent)), rgba(var(--accent),0.5))`,
+          boxShadow: `0 0 12px rgba(var(--accent),0.6)`,
         }}
       />
 
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        <DotsBackground dotCount={420} />
-      </div>
+      <AuroraBackground interactive />
+      <CursorGlow />
 
-      {/* Modern Theme Toggle Button */}
+      {/* Theme toggle */}
       <button
         onClick={toggle}
         className="fixed right-6 top-6 z-50 rounded-2xl px-4 py-3 text-sm font-semibold transition-all duration-300 shadow-lg hover:scale-105 active:scale-95 flex items-center gap-2.5"
@@ -161,25 +209,26 @@ export default function App() {
           border: `1px solid rgba(var(--card-border))`,
           color: `rgb(var(--fg))`,
           backdropFilter: "blur(14px)",
+          WebkitBackdropFilter: "blur(14px)",
         }}
         aria-label="Toggle theme"
       >
         {theme === "dark" ? (
           <>
-            <Sun size={18} className="transition-transform duration-300" />
+            <Sun size={18} />
             <span>Light</span>
           </>
         ) : (
           <>
-            <Moon size={18} className="transition-transform duration-300" />
+            <Moon size={18} />
             <span>Dark</span>
           </>
         )}
       </button>
 
-      <DanglingNav theme={theme} showNav={showNav} />
+      <FloatingNav showNav={showNav} />
 
-      {/* Enhanced Scroll to Top with Magnetic Effect */}
+      {/* Scroll to top */}
       <div
         className="fixed bottom-6 right-6 z-50 transition-all duration-300"
         style={{
@@ -212,7 +261,7 @@ export default function App() {
 
       <div className="relative z-10">
         <main>
-          {/* Hero Section with Enhanced Glass Morphism */}
+          {/* ── HERO ── */}
           <section className="py-16 relative overflow-hidden">
             <Container>
               <GlassMorphCard className="p-10 text-center" intensity="high">
@@ -223,6 +272,11 @@ export default function App() {
                   {resumeData.title}
                 </p>
 
+                {/*
+                  ✅ FIX: h1 must NOT have text-transparent / bg-clip-text here.
+                  Typewriter applies its own gradient internally.
+                  Just give it size + weight.
+                */}
                 <h1 className="mt-3 text-4xl md:text-6xl font-bold">
                   <Typewriter
                     words={[
@@ -232,7 +286,6 @@ export default function App() {
                       "Problem Solver",
                     ]}
                     interval={2600}
-                    className="bg-gradient-to-r from-[rgb(var(--fg))] to-[rgba(var(--accent),1)] bg-clip-text text-transparent"
                   />
                 </h1>
 
@@ -252,12 +305,10 @@ export default function App() {
                       style={{
                         background: `rgb(var(--accent))`,
                         color: "#ffffff",
-                        boxShadow: `0 10px 40px rgba(var(--accent), 0.3)`,
+                        boxShadow: `0 10px 40px rgba(var(--accent),0.3)`,
                       }}
                     >
-                      <span className="relative z-10 flex items-center gap-2">
-                        View Projects{" "}
-                      </span>
+                      <span className="relative z-10">View Projects</span>
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                     </button>
                   </MagneticButton>
@@ -272,7 +323,6 @@ export default function App() {
                         borderColor: `rgba(var(--card-border))`,
                         color: `rgb(var(--fg))`,
                         backdropFilter: "blur(8px)",
-                        WebkitBackdropFilter: "blur(8px)",
                       }}
                     >
                       Contact
@@ -283,7 +333,7 @@ export default function App() {
             </Container>
           </section>
 
-          {/* About Section with 3D Tilt Effect */}
+          {/* ── ABOUT ── */}
           <section id="about" className="py-16">
             <Container>
               <Reveal>
@@ -304,7 +354,7 @@ export default function App() {
             </Container>
           </section>
 
-          {/* Skills Section - Enhanced Radar */}
+          {/* ── SKILLS ── */}
           <section
             id="skills"
             className="relative min-h-screen flex items-center justify-center py-20"
@@ -320,13 +370,12 @@ export default function App() {
                     category.
                   </p>
                 </div>
-
                 <SkillRadar categories={skillCategories} size={720} />
               </Reveal>
             </Container>
           </section>
 
-          {/* Projects Section - Bento Grid Layout */}
+          {/* ── PROJECTS ── */}
           <section id="projects" className="py-16">
             <Container>
               <div className="mb-8 text-center">
@@ -337,12 +386,11 @@ export default function App() {
                   Selected work
                 </p>
               </div>
-
               <BentoProjects projects={resumeData.projects || []} />
             </Container>
           </section>
 
-          {/* Certifications with 3D Cards */}
+          {/* ── CERTIFICATIONS ── */}
           <section id="certifications" className="py-16">
             <Container>
               <div className="mb-8 text-center">
@@ -353,7 +401,6 @@ export default function App() {
                   Achievements & credentials
                 </p>
               </div>
-
               <div className="grid gap-6 md:grid-cols-2">
                 {(resumeData.certifications || []).map((c, idx) => (
                   <Reveal key={c.name}>
@@ -380,45 +427,35 @@ export default function App() {
                               {c.issuer}
                             </p>
                           </div>
-
                           <span
-                            className="rounded-full border px-3 py-1 text-xs text-center whitespace-nowrap"
+                            className="rounded-full border px-3 py-1 text-xs whitespace-nowrap"
                             style={{
-                              background: `rgba(var(--accent), 0.1)`,
-                              borderColor: `rgba(var(--accent), 0.3)`,
+                              background: `rgba(var(--accent),0.1)`,
+                              borderColor: `rgba(var(--accent),0.3)`,
                               color: `rgb(var(--fg))`,
-                              backdropFilter: "blur(8px)",
-                              WebkitBackdropFilter: "blur(8px)",
                             }}
                           >
                             {c.date}
                           </span>
                         </div>
-
-                        {c.note ? (
+                        {c.note && (
                           <p
                             className="mt-4 leading-relaxed"
                             style={{ color: `rgba(var(--muted))` }}
                           >
                             {c.note}
                           </p>
-                        ) : null}
+                        )}
                       </GlassMorphCard>
                     </TiltCard>
                   </Reveal>
                 ))}
               </div>
-
-              <style>{`
-                @keyframes certIn {
-                  from { opacity: 0; transform: translateY(14px); }
-                  to   { opacity: 1; transform: translateY(0px); }
-                }
-              `}</style>
+              <style>{`@keyframes certIn { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }`}</style>
             </Container>
           </section>
 
-          {/* Education Section */}
+          {/* ── EDUCATION ── */}
           <section id="education" className="py-16">
             <Container>
               <div className="mb-8 text-center">
@@ -429,7 +466,6 @@ export default function App() {
                   Academic background
                 </p>
               </div>
-
               {(resumeData.education || []).map((e) => (
                 <Reveal key={e.school}>
                   <TiltCard>
@@ -467,7 +503,7 @@ export default function App() {
             </Container>
           </section>
 
-          {/* Contact Section - Enhanced */}
+          {/* ── CONTACT ── */}
           <section id="contact" className="py-16">
             <Container>
               <Reveal>
@@ -475,7 +511,6 @@ export default function App() {
                   <h2 className="text-3xl font-bold bg-gradient-to-r from-[rgb(var(--fg))] to-[rgba(var(--accent),1)] bg-clip-text text-transparent">
                     Contact
                   </h2>
-
                   <p className="mt-3" style={{ color: `rgba(var(--muted))` }}>
                     Email:{" "}
                     <a
@@ -490,73 +525,63 @@ export default function App() {
                     Phone: {resumeData.phone}
                   </p>
 
-                  <div className="mt-5 flex justify-center gap-4">
-                    <MagneticButton strength={0.3}>
-                      <a
-                        href={`mailto:${resumeData.email}`}
-                        aria-label="Email"
-                        className="group rounded-full p-3 transition-all duration-300 hover:scale-110 active:scale-95 inline-block"
-                        style={{
-                          background: `rgba(var(--card-bg))`,
-                          border: `1px solid rgba(var(--card-border))`,
-                          color: `rgb(var(--fg))`,
-                          boxShadow: "0 14px 45px rgba(0,0,0,0.22)",
-                          backdropFilter: "blur(14px)",
-                          WebkitBackdropFilter: "blur(14px)",
-                        }}
-                      >
-                        <Mail
-                          size={20}
-                          className="group-hover:rotate-12 transition-transform"
-                        />
-                      </a>
-                    </MagneticButton>
-
-                    <MagneticButton strength={0.3}>
-                      <a
-                        href={resumeData.links.linkedin}
-                        target="_blank"
-                        rel="noreferrer"
-                        aria-label="LinkedIn"
-                        className="group rounded-full p-3 transition-all duration-300 hover:scale-110 active:scale-95 inline-block"
-                        style={{
-                          background: `rgba(var(--card-bg))`,
-                          border: `1px solid rgba(var(--card-border))`,
-                          color: `rgb(var(--fg))`,
-                          boxShadow: "0 14px 45px rgba(0,0,0,0.22)",
-                          backdropFilter: "blur(14px)",
-                          WebkitBackdropFilter: "blur(14px)",
-                        }}
-                      >
-                        <Linkedin
-                          size={20}
-                          className="group-hover:rotate-12 transition-transform"
-                        />
-                      </a>
-                    </MagneticButton>
-
-                    <MagneticButton strength={0.3}>
-                      <a
-                        href={resumeData.links.github}
-                        target="_blank"
-                        rel="noreferrer"
-                        aria-label="GitHub"
-                        className="group rounded-full p-3 transition-all duration-300 hover:scale-110 active:scale-95 inline-block"
-                        style={{
-                          background: `rgba(var(--card-bg))`,
-                          border: `1px solid rgba(var(--card-border))`,
-                          color: `rgb(var(--fg))`,
-                          boxShadow: "0 14px 45px rgba(0,0,0,0.22)",
-                          backdropFilter: "blur(14px)",
-                          WebkitBackdropFilter: "blur(14px)",
-                        }}
-                      >
-                        <Github
-                          size={20}
-                          className="group-hover:rotate-12 transition-transform"
-                        />
-                      </a>
-                    </MagneticButton>
+                  <div className="mt-6 flex justify-center gap-4">
+                    {[
+                      {
+                        href: `mailto:${resumeData.email}`,
+                        icon: <Mail size={20} />,
+                        label: "Email",
+                      },
+                      {
+                        href: resumeData.links.linkedin,
+                        icon: <Linkedin size={20} />,
+                        label: "LinkedIn",
+                        ext: true,
+                      },
+                      {
+                        href: resumeData.links.github,
+                        icon: <Github size={20} />,
+                        label: "GitHub",
+                        ext: true,
+                      },
+                    ].map(({ href, icon, label, ext }) => (
+                      <MagneticButton key={label} strength={0.3}>
+                        <a
+                          href={href}
+                          aria-label={label}
+                          target={ext ? "_blank" : undefined}
+                          rel={ext ? "noreferrer" : undefined}
+                          className="group transition-all duration-300 hover:scale-110 active:scale-95"
+                          style={{
+                            /* fixed 48×48 circle, true flex centering */
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            width: 48,
+                            height: 48,
+                            borderRadius: "50%",
+                            background: "rgb(var(--card-bg))",
+                            border: "1px solid rgba(var(--card-border))",
+                            color: "rgb(var(--fg))",
+                            boxShadow: "0 8px 32px rgba(0,0,0,0.18)",
+                            backdropFilter: "blur(14px)",
+                            WebkitBackdropFilter: "blur(14px)",
+                            flexShrink: 0,
+                          }}
+                        >
+                          <span
+                            className="group-hover:rotate-12 transition-transform"
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            {icon}
+                          </span>
+                        </a>
+                      </MagneticButton>
+                    ))}
                   </div>
                 </GlassMorphCard>
               </Reveal>

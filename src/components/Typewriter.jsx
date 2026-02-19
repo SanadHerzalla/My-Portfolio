@@ -1,5 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 
+/**
+ * Typewriter - fixed for dark + light mode
+ * The parent h1 uses bg-clip-text + text-transparent for gradient,
+ * but that breaks child spans. We apply the gradient directly here.
+ */
 export default function Typewriter({
   text = "",
   words,
@@ -83,6 +88,13 @@ export default function Typewriter({
         display: "inline-block",
         ...styles[phase],
         transition: transitions[phase],
+        /* ── gradient applied directly so it works regardless of parent ── */
+        background:
+          "linear-gradient(135deg, rgb(var(--fg)) 0%, rgb(var(--accent)) 100%)",
+        WebkitBackgroundClip: "text",
+        backgroundClip: "text",
+        WebkitTextFillColor: "transparent",
+        color: "transparent",
       }}
     >
       {resolvedWords[index]}

@@ -1,11 +1,11 @@
 @import "tailwindcss";
 
-/* ✅ Smooth page scrolling */
+/* âœ… Smooth page scrolling */
 html {
   scroll-behavior: smooth;
 }
 
-/* ✅ Better default rendering */
+/* âœ… Better default rendering */
 html,
 body {
   height: 100%;
@@ -59,19 +59,19 @@ body {
   --dot-b: #94a3b8;
   --dot-link: rgba(156, 163, 175, 0.18);
 
-  /* ✅ Radar tokens */
+  /* âœ… Radar tokens */
   --radar-bg-a: rgba(255, 255, 255, 0.92);
   --radar-bg-b: rgba(248, 250, 252, 0.65);
   --radar-ring: rgba(15, 23, 42, 0.12);
 
-  /* ✅ Consistent system tokens */
+  /* âœ… Consistent system tokens */
   --radius-lg: 1rem;
   /* 16px */
   --radius-xl: 1.25rem;
   /* 20px */
   --ring: rgba(59, 130, 246, 0.35);
 
-  /* ✅ Shadows */
+  /* âœ… Shadows */
   --shadow-soft: 0 18px 60px rgba(0, 0, 0, 0.22);
   --shadow-strong: 0 30px 90px rgba(0, 0, 0, 0.35);
 }
@@ -112,10 +112,10 @@ html.dark {
 }
 
 /* ========================================
-   🎨 2026 UI ENHANCEMENTS
+   ðŸŽ¨ 2026 UI ENHANCEMENTS
    ======================================== */
 
-/* ✅ Smooth theme transitions (respects reduced motion) */
+/* âœ… Smooth theme transitions (respects reduced motion) */
 html,
 body,
 #root {
@@ -153,7 +153,7 @@ body,
   }
 }
 
-/* ✅ Better selection highlight (premium detail) */
+/* âœ… Better selection highlight (premium detail) */
 ::selection {
   background: rgba(var(--accent), 0.22);
   color: rgb(var(--fg));
@@ -164,7 +164,7 @@ body,
   color: rgb(var(--fg));
 }
 
-/* ✅ Nice scrollbar (modern look) */
+/* âœ… Nice scrollbar (modern look) */
 * {
   scrollbar-width: thin;
   scrollbar-color: rgba(var(--accent), 0.35) transparent;
@@ -192,7 +192,7 @@ body,
 }
 
 /* ========================================
-   🪄 GLASS MORPHISM UTILITIES
+   ðŸª„ GLASS MORPHISM UTILITIES
    ======================================== */
 
 .glass-low {
@@ -214,7 +214,7 @@ body,
 }
 
 /* ========================================
-   ✨ GRADIENT TEXT UTILITIES
+   âœ¨ GRADIENT TEXT UTILITIES
    ======================================== */
 
 .gradient-text {
@@ -242,7 +242,7 @@ body,
 }
 
 /* ========================================
-   🎯 FOCUS STATES (Accessibility)
+   ðŸŽ¯ FOCUS STATES (Accessibility)
    ======================================== */
 
 *:focus-visible {
@@ -257,7 +257,7 @@ a:focus-visible {
 }
 
 /* ========================================
-   🎬 ANIMATION KEYFRAMES
+   ðŸŽ¬ ANIMATION KEYFRAMES
    ======================================== */
 
 @keyframes fadeIn {
@@ -307,7 +307,7 @@ a:focus-visible {
   }
 }
 
-/* ✅ Cursor (typewriter effect) */
+/* âœ… Cursor (typewriter effect) */
 .type-cursor {
   display: inline-block;
   margin-left: 0.06em;
@@ -322,7 +322,7 @@ a:focus-visible {
 }
 
 /* ========================================
-   🎨 UTILITY CLASSES
+   ðŸŽ¨ UTILITY CLASSES
    ======================================== */
 
 .fade-in {
@@ -346,7 +346,7 @@ a:focus-visible {
 }
 
 /* ========================================
-   🎴 CARD UTILITIES
+   ðŸŽ´ CARD UTILITIES
    ======================================== */
 
 .card-base {
@@ -365,7 +365,7 @@ a:focus-visible {
 }
 
 /* ========================================
-   🔘 BUTTON UTILITIES
+   ðŸ”˜ BUTTON UTILITIES
    ======================================== */
 
 .btn-primary {
@@ -412,7 +412,7 @@ a:focus-visible {
 }
 
 /* ========================================
-   📐 LAYOUT HELPERS
+   ðŸ“ LAYOUT HELPERS
    ======================================== */
 
 .container {
@@ -439,7 +439,7 @@ a:focus-visible {
 }
 
 /* ========================================
-   🎪 BENTO GRID (Modern Layout)
+   ðŸŽª BENTO GRID (Modern Layout)
    ======================================== */
 
 .bento-grid {
@@ -456,7 +456,7 @@ a:focus-visible {
 }
 
 /* ========================================
-   ⚡ PERFORMANCE OPTIMIZATIONS
+   âš¡ PERFORMANCE OPTIMIZATIONS
    ======================================== */
 
 /* Enable GPU acceleration for transforms */
@@ -476,7 +476,7 @@ a:focus-visible {
 }
 
 /* ========================================
-   🎭 HOVER EFFECTS
+   ðŸŽ­ HOVER EFFECTS
    ======================================== */
 
 .hover-lift {
@@ -504,7 +504,7 @@ a:focus-visible {
 }
 
 /* ========================================
-   🌙 DARK MODE ADJUSTMENTS
+   ðŸŒ™ DARK MODE ADJUSTMENTS
    ======================================== */
 
 html.dark .shadow-custom {
@@ -516,7 +516,7 @@ html.dark .border-custom {
 }
 
 /* ========================================
-   💀 LOADING STATES
+   ðŸ’€ LOADING STATES
    ======================================== */
 
 .skeleton {
@@ -532,7 +532,7 @@ html.dark .border-custom {
 }
 
 /* ========================================
-   🖨️ PRINT STYLES
+   ðŸ–¨ï¸ PRINT STYLES
    ======================================== */
 
 @media print {
@@ -551,4 +551,28 @@ html.dark .border-custom {
   a {
     text-decoration: underline;
   }
+}
+/* ========================================
+   💊 BENTO TECH PILLS
+   ======================================== */
+
+.bento-tech-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 3px 13px !important;
+  border-radius: 9999px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  line-height: 1.8 !important;
+  white-space: nowrap !important;
+  background-color: rgba(var(--accent), 0.14) !important;
+  border: 1.5px solid rgba(var(--accent), 0.5) !important;
+  color: rgb(var(--accent)) !important;
+  letter-spacing: 0.03em !important;
+  box-sizing: border-box !important;
+}
+
+.bento-tech-pill:hover {
+  transform: scale(1.05) !important;
+  background-color: rgba(var(--accent), 0.24) !important;
 }

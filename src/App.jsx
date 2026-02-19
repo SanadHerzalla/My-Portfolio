@@ -14,7 +14,7 @@ import BentoProjects from "./components/BentoProjects";
 import GlassMorphCard from "./components/GlassMorphCard";
 import TiltCard from "./components/TiltCard";
 
-/* ── Cursor glow trail ── */
+/* â”€â”€ Cursor glow trail â”€â”€ */
 function CursorGlow() {
   const glowRef = useRef(null);
   const pos = useRef({ x: -400, y: -400 });
@@ -73,11 +73,6 @@ export default function App() {
   const [lastScrollY, setLastScrollY] = useState(0);
 
   useEffect(() => {
-    const t = setTimeout(() => setSkipVisible(true), 1000);
-    return () => clearTimeout(t);
-  }, []);
-
-  useEffect(() => {
     const t = setTimeout(() => setLoading(false), 1000);
     return () => clearTimeout(t);
   }, []);
@@ -93,10 +88,8 @@ export default function App() {
             document.documentElement.scrollHeight -
             document.documentElement.clientHeight;
           setScrollProgress((document.documentElement.scrollTop / h) * 100);
-          const diff = y - lastScrollY;
-          if (diff > 50 && y > 200) setShowNav(false);
-          else if (diff < -10) setShowNav(true);
-          else if (y < 100) setShowNav(true);
+          // Nav is always visible on desktop
+          setShowNav(true);
           setLastScrollY(y);
           ticking = false;
         });
@@ -141,7 +134,7 @@ export default function App() {
             letterSpacing: "0.05em",
           }}
         >
-          Skip →
+          Skip â†’
         </button>
       </div>
     );
@@ -261,7 +254,7 @@ export default function App() {
 
       <div className="relative z-10">
         <main>
-          {/* ── HERO ── */}
+          {/* â”€â”€ HERO â”€â”€ */}
           <section className="py-16 relative overflow-hidden">
             <Container>
               <GlassMorphCard className="p-10 text-center" intensity="high">
@@ -273,7 +266,7 @@ export default function App() {
                 </p>
 
                 {/*
-                  ✅ FIX: h1 must NOT have text-transparent / bg-clip-text here.
+                  âœ… FIX: h1 must NOT have text-transparent / bg-clip-text here.
                   Typewriter applies its own gradient internally.
                   Just give it size + weight.
                 */}
@@ -333,7 +326,7 @@ export default function App() {
             </Container>
           </section>
 
-          {/* ── ABOUT ── */}
+          {/* â”€â”€ ABOUT â”€â”€ */}
           <section id="about" className="py-16">
             <Container>
               <Reveal>
@@ -354,7 +347,7 @@ export default function App() {
             </Container>
           </section>
 
-          {/* ── SKILLS ── */}
+          {/* â”€â”€ SKILLS â”€â”€ */}
           <section
             id="skills"
             className="relative min-h-screen flex items-center justify-center py-20"
@@ -375,7 +368,7 @@ export default function App() {
             </Container>
           </section>
 
-          {/* ── PROJECTS ── */}
+          {/* â”€â”€ PROJECTS â”€â”€ */}
           <section id="projects" className="py-16">
             <Container>
               <div className="mb-8 text-center">
@@ -390,7 +383,7 @@ export default function App() {
             </Container>
           </section>
 
-          {/* ── CERTIFICATIONS ── */}
+          {/* â”€â”€ CERTIFICATIONS â”€â”€ */}
           <section id="certifications" className="py-16">
             <Container>
               <div className="mb-8 text-center">
@@ -455,7 +448,7 @@ export default function App() {
             </Container>
           </section>
 
-          {/* ── EDUCATION ── */}
+          {/* â”€â”€ EDUCATION â”€â”€ */}
           <section id="education" className="py-16">
             <Container>
               <div className="mb-8 text-center">
@@ -503,7 +496,7 @@ export default function App() {
             </Container>
           </section>
 
-          {/* ── CONTACT ── */}
+          {/* â”€â”€ CONTACT â”€â”€ */}
           <section id="contact" className="py-16">
             <Container>
               <Reveal>
@@ -553,7 +546,7 @@ export default function App() {
                           rel={ext ? "noreferrer" : undefined}
                           className="group transition-all duration-300 hover:scale-110 active:scale-95"
                           style={{
-                            /* fixed 48×48 circle, true flex centering */
+                            /* fixed 48Ã—48 circle, true flex centering */
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",

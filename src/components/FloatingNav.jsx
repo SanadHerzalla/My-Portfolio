@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { resumeData } from "../data/resumeData";
 
 const links = [
@@ -19,7 +19,7 @@ export default function FloatingNav({ showNav = true }) {
   const navRef = useRef(null);
   const btnRefs = useRef([]);
 
-  /* ── scroll-spy ── */
+  /* scroll-spy */
   useEffect(() => {
     const els = links.map((l) => document.getElementById(l.id)).filter(Boolean);
 
@@ -32,7 +32,6 @@ export default function FloatingNav({ showNav = true }) {
       },
       { threshold: 0.15, rootMargin: "-20% 0px -55% 0px" },
     );
-
     els.forEach((el) => io.observe(el));
 
     const onScroll = () => {
@@ -43,28 +42,26 @@ export default function FloatingNav({ showNav = true }) {
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
-
     return () => {
       io.disconnect();
       window.removeEventListener("scroll", onScroll);
     };
   }, []);
 
-  /* ── sliding indicator position ── */
+  /* sliding indicator position */
   useEffect(() => {
     const idx = links.findIndex((l) => l.id === activeId);
     const btn = btnRefs.current[idx];
     const nav = navRef.current;
     const ind = indicatorRef.current;
     if (!btn || !nav || !ind) return;
-
     const navRect = nav.getBoundingClientRect();
     const btnRect = btn.getBoundingClientRect();
     ind.style.left = `${btnRect.left - navRect.left}px`;
     ind.style.width = `${btnRect.width}px`;
   }, [activeId, showNav]);
 
-  /* ── close mobile on outside click ── */
+  /* close mobile on outside click/tap */
   useEffect(() => {
     const handler = (e) => {
       if (navRef.current && !navRef.current.contains(e.target))
@@ -76,7 +73,8 @@ export default function FloatingNav({ showNav = true }) {
 
   const scrollTo = (id) => {
     setActiveId(id);
-    setMobileOpen(false);
+    // Close menu AFTER a short delay so the tap registers properly on mobile
+    setTimeout(() => setMobileOpen(false), 80);
     const el = document.getElementById(id);
     if (!el) return;
     el.style.scrollMarginTop = "96px";
@@ -88,26 +86,26 @@ export default function FloatingNav({ showNav = true }) {
 
   return (
     <>
-      {/* ═══════════════════════════════════════════════
-          DESKTOP — floating island
-      ═══════════════════════════════════════════════ */}
+      {/* ═══════════════════════════════
+          DESKTOP — always visible
+      ═══════════════════════════════ */}
       <nav
         ref={navRef}
         aria-label="Main navigation"
-        className="fixed top-5 left-1/2 z-50 hidden md:flex items-center gap-1 px-3 py-2 rounded-2xl transition-all duration-500"
+        className="fixed top-5 left-1/2 z-50 hidden md:flex items-center gap-1 px-3 py-2 rounded-2xl"
         style={{
-          transform: `translateX(-50%) translateY(${showNav ? "0" : "-110%"})`,
-          opacity: showNav ? 1 : 0,
+          transform: "translateX(-50%)",
+          opacity: 1,
           background: scrolled
-            ? "rgba(var(--card-bg), 0.88)"
-            : "rgba(var(--card-bg), 0.72)",
+            ? "rgba(var(--card-bg), 0.95)"
+            : "rgba(var(--card-bg), 0.80)",
           border: "1px solid rgba(var(--card-border))",
           backdropFilter: "blur(20px)",
           WebkitBackdropFilter: "blur(20px)",
           boxShadow: scrolled
             ? "0 20px 60px rgba(0,0,0,0.28), 0 0 0 1px rgba(var(--accent),0.08)"
             : "0 12px 40px rgba(0,0,0,0.16)",
-          willChange: "transform, opacity",
+          transition: "background 0.3s ease, box-shadow 0.3s ease",
         }}
       >
         {/* Brand chip */}
@@ -139,19 +137,19 @@ export default function FloatingNav({ showNav = true }) {
           style={{ background: "rgba(var(--card-border))" }}
         />
 
-        {/* Sliding indicator (background) */}
+        {/* Nav links with sliding indicator */}
         <div className="relative flex items-center gap-0.5">
           <div
             ref={indicatorRef}
-            className="absolute h-full rounded-xl transition-all duration-300 ease-out pointer-events-none"
+            className="absolute h-full rounded-xl pointer-events-none"
             style={{
               background: "rgba(var(--accent), 0.12)",
               border: "1px solid rgba(var(--accent), 0.22)",
               top: 0,
               zIndex: 0,
+              transition: "left 0.3s ease, width 0.3s ease",
             }}
           />
-
           {links.map((l, i) => {
             const isActive = activeId === l.id;
             const isHov = hovered === l.id;
@@ -162,15 +160,14 @@ export default function FloatingNav({ showNav = true }) {
                 onClick={() => scrollTo(l.id)}
                 onMouseEnter={() => setHovered(l.id)}
                 onMouseLeave={() => setHovered(null)}
-                className="relative z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium transition-all duration-200 focus:outline-none focus-visible:ring-2"
+                className="relative z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium focus:outline-none focus-visible:ring-2"
                 style={{
-                  color: isActive
-                    ? "rgb(var(--fg))"
-                    : isHov
-                      ? "rgb(var(--fg))"
-                      : "rgba(var(--muted))",
+                  color:
+                    isActive || isHov ? "rgb(var(--fg))" : "rgba(var(--muted))",
                   transform: isActive ? "scale(1.02)" : "scale(1)",
+                  transition: "color 0.2s ease, transform 0.2s ease",
                   whiteSpace: "nowrap",
+                  cursor: "pointer",
                 }}
                 aria-current={isActive ? "page" : undefined}
               >
@@ -192,97 +189,114 @@ export default function FloatingNav({ showNav = true }) {
         </div>
       </nav>
 
-      {/* ═══════════════════════════════════════════════
-          MOBILE — bottom sheet style
-      ═══════════════════════════════════════════════ */}
+      {/* ═══════════════════════════════
+          MOBILE — bottom sheet
+      ═══════════════════════════════ */}
       <div
-        className="fixed bottom-5 left-1/2 z-50 flex md:hidden"
+        className="fixed bottom-5 left-1/2 z-[999] flex md:hidden"
         style={{ transform: "translateX(-50%)" }}
       >
-        {/* Pill toggle */}
+        {/* Expanded menu — rendered ABOVE the toggle pill */}
+        {mobileOpen && (
+          <div
+            className="absolute bottom-full mb-3 left-1/2 w-56 rounded-2xl p-2"
+            style={{
+              transform: "translateX(-50%)",
+              background: "rgba(var(--card-bg), 0.98)",
+              border: "1px solid rgba(var(--card-border))",
+              backdropFilter: "blur(24px)",
+              WebkitBackdropFilter: "blur(24px)",
+              boxShadow: "0 24px 80px rgba(0,0,0,0.40)",
+              zIndex: 1000,
+            }}
+          >
+            {links.map((l) => {
+              const isActive = activeId === l.id;
+              return (
+                <button
+                  key={l.id}
+                  onPointerDown={(e) => {
+                    e.stopPropagation();
+                    scrollTo(l.id);
+                  }}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-left"
+                  style={{
+                    background: isActive
+                      ? "rgba(var(--accent),0.14)"
+                      : "transparent",
+                    border: isActive
+                      ? "1px solid rgba(var(--accent),0.22)"
+                      : "1px solid transparent",
+                    color: isActive ? "rgb(var(--fg))" : "rgba(var(--muted))",
+                    cursor: "pointer",
+                    WebkitTapHighlightColor: "transparent",
+                  }}
+                >
+                  <span>{l.icon}</span>
+                  <span>{l.label}</span>
+                  {isActive && (
+                    <span
+                      className="ml-auto w-1.5 h-1.5 rounded-full"
+                      style={{
+                        background: "rgb(var(--accent))",
+                        boxShadow: "0 0 8px rgba(var(--accent),0.8)",
+                      }}
+                    />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Toggle pill */}
         <button
-          onClick={() => setMobileOpen((v) => !v)}
-          className="flex items-center gap-2.5 px-5 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 active:scale-95"
+          onPointerDown={(e) => {
+            e.stopPropagation();
+            setMobileOpen((v) => !v);
+          }}
+          className="flex items-center gap-2.5 px-5 py-3 rounded-2xl text-sm font-semibold active:scale-95"
           style={{
-            background: "rgba(var(--card-bg), 0.92)",
+            background: "rgba(var(--card-bg), 0.95)",
             border: "1px solid rgba(var(--card-border))",
             backdropFilter: "blur(20px)",
             WebkitBackdropFilter: "blur(20px)",
             boxShadow: "0 16px 50px rgba(0,0,0,0.28)",
             color: "rgb(var(--fg))",
+            cursor: "pointer",
+            transition: "transform 0.15s ease",
+            WebkitTapHighlightColor: "transparent",
+            zIndex: 1001,
+            position: "relative",
           }}
           aria-label="Open navigation"
           aria-expanded={mobileOpen}
         >
           <span
-            className="w-2 h-2 rounded-full transition-all duration-300"
+            className="w-2 h-2 rounded-full"
             style={{
               background: "rgb(var(--accent))",
               boxShadow: mobileOpen
                 ? "0 0 12px rgba(var(--accent),0.9)"
                 : "none",
+              transition: "box-shadow 0.3s ease",
             }}
           />
           <span>
             {links.find((l) => l.id === activeId)?.label ?? "Navigate"}
           </span>
           <span
-            className="text-xs transition-transform duration-300"
+            className="text-xs"
             style={{
               color: "rgba(var(--muted))",
               transform: mobileOpen ? "rotate(180deg)" : "rotate(0deg)",
+              transition: "transform 0.3s ease",
+              display: "inline-block",
             }}
           >
             ▲
           </span>
         </button>
-
-        {/* Mobile menu drawer */}
-        <div
-          className="absolute bottom-full mb-3 left-1/2 w-56 rounded-2xl p-2 transition-all duration-300"
-          style={{
-            transform: `translateX(-50%) translateY(${mobileOpen ? "0" : "10px"})`,
-            opacity: mobileOpen ? 1 : 0,
-            pointerEvents: mobileOpen ? "auto" : "none",
-            background: "rgba(var(--card-bg), 0.96)",
-            border: "1px solid rgba(var(--card-border))",
-            backdropFilter: "blur(20px)",
-            WebkitBackdropFilter: "blur(20px)",
-            boxShadow: "0 24px 80px rgba(0,0,0,0.35)",
-          }}
-        >
-          {links.map((l) => {
-            const isActive = activeId === l.id;
-            return (
-              <button
-                key={l.id}
-                onClick={() => scrollTo(l.id)}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 active:scale-98 text-left"
-                style={{
-                  background: isActive
-                    ? "rgba(var(--accent),0.14)"
-                    : "transparent",
-                  border: isActive
-                    ? "1px solid rgba(var(--accent),0.22)"
-                    : "1px solid transparent",
-                  color: isActive ? "rgb(var(--fg))" : "rgba(var(--muted))",
-                }}
-              >
-                <span>{l.icon}</span>
-                <span>{l.label}</span>
-                {isActive && (
-                  <span
-                    className="ml-auto w-1.5 h-1.5 rounded-full"
-                    style={{
-                      background: "rgb(var(--accent))",
-                      boxShadow: "0 0 8px rgba(var(--accent),0.8)",
-                    }}
-                  />
-                )}
-              </button>
-            );
-          })}
-        </div>
       </div>
     </>
   );

@@ -2,54 +2,90 @@ import { useEffect, useRef, useState } from "react";
 
 export default function Typewriter({
   text = "",
-  speed = 55,          
-  startDelay = 250,
+  words,
+  interval = 2800,
+  speed,
+  startDelay,
   className = "",
-  onDone,              
+  onDone,
 }) {
-  const [out, setOut] = useState("");
-  const doneCalledRef = useRef(false);
+  const resolvedWords =
+    words ?? (Array.isArray(text) ? text : text ? [text] : []);
+
+  const [index, setIndex] = useState(0);
+  const [phase, setPhase] = useState("in");
+  const timerRef = useRef(null);
+  const didDone = useRef(false);
 
   useEffect(() => {
-    let rafId = 0;
-    let timeoutId = 0;
+    const t = setTimeout(() => setPhase("visible"), 80);
+    return () => clearTimeout(t);
+  }, []);
 
-    let startTs = 0;
-    let lastLen = 0;
-
-    doneCalledRef.current = false;
-    setOut("");
-
-    timeoutId = window.setTimeout(() => {
-      const tick = (ts) => {
-        if (!startTs) startTs = ts;
-
-        const elapsed = ts - startTs;
-        const nextLen = Math.min(text.length, Math.floor(elapsed / speed));
-
-        if (nextLen !== lastLen) {
-          lastLen = nextLen;
-          setOut(text.slice(0, nextLen));
-        }
-
-        if (nextLen < text.length) {
-          rafId = window.requestAnimationFrame(tick);
-        } else {
-          if (!doneCalledRef.current) {
-            doneCalledRef.current = true;
+  useEffect(() => {
+    if (resolvedWords.length <= 1) {
+      if (!didDone.current) {
+        didDone.current = true;
+        onDone?.();
+      }
+      return;
+    }
+    const cycle = () => {
+      setPhase("out");
+      setTimeout(() => {
+        setIndex((i) => {
+          const next = (i + 1) % resolvedWords.length;
+          if (next === 0 && !didDone.current) {
+            didDone.current = true;
             onDone?.();
           }
-        }
-      };
-
-      rafId = window.requestAnimationFrame(tick);
-    }, startDelay);
-
-    return () => {
-      window.clearTimeout(timeoutId);
-      window.cancelAnimationFrame(rafId);
+          return next;
+        });
+        setPhase("in");
+        setTimeout(() => setPhase("visible"), 60);
+      }, 360);
     };
-  }, [text, speed, startDelay, onDone]);
+    timerRef.current = setInterval(cycle, interval);
+    return () => clearInterval(timerRef.current);
+  }, [resolvedWords.length, interval]);
 
-  return <span className={className}>{out}</span>;
+  const styles = {
+    visible: {
+      opacity: 1,
+      filter: "blur(0px)",
+      transform: "scale(1) translateY(0px)",
+    },
+    out: {
+      opacity: 0,
+      filter: "blur(16px)",
+      transform: "scale(0.93) translateY(-10px)",
+    },
+    in: {
+      opacity: 0,
+      filter: "blur(16px)",
+      transform: "scale(1.07) translateY(12px)",
+    },
+  };
+
+  const transitions = {
+    visible:
+      "opacity 480ms cubic-bezier(0.22,1,0.36,1), filter 480ms cubic-bezier(0.22,1,0.36,1), transform 480ms cubic-bezier(0.22,1,0.36,1)",
+    out: "opacity 320ms ease-in, filter 320ms ease-in, transform 320ms ease-in",
+    in: "none",
+  };
+
+  if (!resolvedWords.length) return null;
+
+  return (
+    <span
+      className={className}
+      style={{
+        display: "inline-block",
+        ...styles[phase],
+        transition: transitions[phase],
+      }}
+    >
+      {resolvedWords[index]}
+    </span>
+  );
 }

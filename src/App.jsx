@@ -223,11 +223,16 @@ export default function App() {
                   {resumeData.title}
                 </p>
 
-                <h1 className="mt-3 text-4xl md:text-6xl font-bold bg-gradient-to-r from-[rgb(var(--fg))] to-[rgba(var(--accent),1)] bg-clip-text text-transparent">
+                <h1 className="mt-3 text-4xl md:text-6xl font-bold">
                   <Typewriter
-                    text="Sanad Herzalla"
-                    speed={55}
-                    startDelay={250}
+                    words={[
+                      "Sanad Herzalla",
+                      "Software Engineer",
+                      "Full-Stack Dev",
+                      "Problem Solver",
+                    ]}
+                    interval={2600}
+                    className="bg-gradient-to-r from-[rgb(var(--fg))] to-[rgba(var(--accent),1)] bg-clip-text text-transparent"
                   />
                 </h1>
 
@@ -251,8 +256,7 @@ export default function App() {
                       }}
                     >
                       <span className="relative z-10 flex items-center gap-2">
-                        View Projects
-                        <Sparkles className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        View Projects{" "}
                       </span>
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                     </button>

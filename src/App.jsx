@@ -88,7 +88,6 @@ export default function App() {
             document.documentElement.scrollHeight -
             document.documentElement.clientHeight;
           setScrollProgress((document.documentElement.scrollTop / h) * 100);
-          // Nav is always visible on desktop
           setShowNav(true);
           setLastScrollY(y);
           ticking = false;

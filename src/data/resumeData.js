@@ -58,6 +58,12 @@ export const resumeData = {
             date: "2024",
             note: "University-level programming competition focused on algorithmic problem solving and team collaboration.",
         },
+        {
+            name: "5th Place - AAU-PC (2026)",
+            issuer: "Amman Arab University",
+            date: "2026",
+            note: "Participated in AAU-PC competition, demonstrating strong problem-solving and algorithmic thinking.",
+        },
     ],
 
     projects: [

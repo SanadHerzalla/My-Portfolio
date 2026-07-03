@@ -35,7 +35,19 @@ export const resumeData = {
 
     certifications: [
         {
-            name: "EpiCode (2025)",
+            name: "1st Place - AAU UI/UX Competition",
+            issuer: "Amman Arab University",
+            date: "2026",
+            note: "Designed user-friendly interfaces for eGovernment Health Care services, focusing on usability, accessibility, and modern design.",
+        },
+        {
+            name: "5th Place - AAU-PC",
+            issuer: "Amman Arab University",
+            date: "2026",
+            note: "Participated in AAU-PC competition, demonstrating strong problem-solving and algorithmic thinking.",
+        },
+        {
+            name: "EpiCode",
             issuer: "IEEE Hashemite University",
             date: "2025",
             note: "Participated in EpiCode competition, demonstrating strong problem-solving and algorithmic thinking.",
@@ -47,23 +59,18 @@ export const resumeData = {
             note: "Competed across 3 stages; secured 1st place in Stage 2 (SQL Queries) and placed 10th overall.",
         },
         {
-            name: "4th Place – UI/UX Design Competition",
+            name: "4th Place – AAU UI/UX Competition",
             issuer: "Amman Arab University",
             date: "2025",
             note: "Designed user-friendly interfaces for E-Banking services, focusing on usability, accessibility, and modern design.",
         },
         {
-            name: "4th Place – AAU-PC (2024)",
+            name: "4th Place – AAU-PC",
             issuer: "Amman Arab University",
             date: "2024",
             note: "University-level programming competition focused on algorithmic problem solving and team collaboration.",
         },
-        {
-            name: "5th Place - AAU-PC (2026)",
-            issuer: "Amman Arab University",
-            date: "2026",
-            note: "Participated in AAU-PC competition, demonstrating strong problem-solving and algorithmic thinking.",
-        },
+        
     ],
 
     projects: [
